@@ -7,11 +7,13 @@ import { CascadeEnvironment } from './CascadeView'
 // If you're looking for the internals of the CAD System, they're in /js/CADWorker
 // If you're looking for the 3D Three.js Viewport, they're in /js/MainPage/CascadeView*
 
-var myLayout, monacoEditor,
-    consoleContainer, consoleGolden, codeContainer, gui,
-    guiPanel, GUIState, count = 0, //focused = true,
-    mainProject = false, messageHandlers = {}, startup,
-    isInitialized = false;
+// var myLayout, monacoEditor,
+//     consoleContainer, consoleGolden, codeContainer, gui,
+//     guiPanel, GUIState, count = 0, //focused = true,
+//     mainProject = false,
+//     // messageHandlers = {},
+//     startup,
+//     isInitialized = false;
 
 let starterCode =
 `// Welcome to Cascade Studio!   Here are some useful functions:
