@@ -15,6 +15,8 @@ import { CascadeEnvironment } from './CascadeView'
 //     startup,
 //     isInitialized = false;
 
+let hasCalledCadhubOnInit = false
+
 let starterCode =
 `// Welcome to Cascade Studio!   Here are some useful functions:
 //  Translate(), Rotate(), Scale(), Union(), Difference(), Intersection()
@@ -299,7 +301,10 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
 
                 // Print a friendly message (to which we'll append progress updates)
                 console.log("Generating Model");
-                onInit()
+                if (!hasCalledCadhubOnInit) {
+                  onInit()
+                  hasCalledCadhubOnInit = true
+                }
             };
 
             // Force the F5 Key to refresh the model instead of refreshing the page
