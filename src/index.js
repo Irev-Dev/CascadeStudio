@@ -14,16 +14,4 @@ if ("serviceWorker" in navigator) {
   console.log("Browser does not support offline access!");
 }
 
-// Begins loading the CAD Kernel Web Worker
-if (window.Worker) {
-  cascadeStudioWorker = new Worker("../js/CADWorker/CascadeStudioMainWorker.js")
-    // Ping Pong Messages Back and Forth based on their registration in messageHandlers
-  cascadeStudioWorker.onmessage = function (e) {
-    if (e.data.type in messageHandlers) {
-      let response = messageHandlers[e.data.type](e.data.payload);
-      if (response) { cascadeStudioWorker.postMessage({ "type": e.data.type, payload: response }) };
-    }
-  }
-}
-
 new initialize();

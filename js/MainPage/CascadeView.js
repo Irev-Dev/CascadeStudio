@@ -1,6 +1,8 @@
-import * as THREE from '../../static_node_modules/three/build/three'
-import {initializeHandleGizmos} from './CascadeViewHandles'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import * as THREE from "../../static_node_modules/three/build/three";
+import { initializeHandleGizmos } from "./CascadeViewHandles";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { messageHandlers, workerWorking } from "../../src/globals";
+import cascadeStudioWorker from "../../src/workerInit";
 // This file governs the 3D Viewport which displays the 3D Model
 // It is also in charge of saving to STL and OBJ
 
@@ -136,7 +138,7 @@ export function CascadeEnvironment (goldenContainer) {
 
   // A callback to load the Triangulated Shape from the Worker and add it to the Scene
   messageHandlers["combineAndRenderShapes"] = ([facelist, edgelist]) => {
-    workerWorking = false;     // Untick this flag to allow Evaluations again
+    workerWorking.isWorking = false;     // Untick this flag to allow Evaluations again
     if (!facelist) { return;}  // Do nothing if the results are null
 
     // The old mainObject is dead!  Long live the mainObject!

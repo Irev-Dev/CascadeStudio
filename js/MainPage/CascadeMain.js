@@ -1,9 +1,20 @@
-import { CascadeEnvironment } from './CascadeView'
-import GoldenLayout from 'golden-layout'
-import 'golden-layout/src/css/goldenlayout-base.css'
-import 'golden-layout/src/css/goldenlayout-dark-theme.css'
-import ControlKit from 'controlkit'
-import * as monaco from 'monaco-editor'
+/* eslint-disable prettier/prettier */
+import { CascadeEnvironment } from "./CascadeView";
+import GoldenLayout from "golden-layout";
+import "golden-layout/src/css/goldenlayout-base.css";
+import "golden-layout/src/css/goldenlayout-dark-theme.css";
+import ControlKit from "controlkit";
+import * as monaco from "monaco-editor";
+import {
+  messageHandlers,
+  workerWorking
+} from "../../src/globals";
+import cascadeStudioWorker from '../../src/workerInit';
+import '../../static_node_modules/rawflate/rawdeflate'
+import '../../static_node_modules/rawflate/rawinflate'
+
+
+
 // This script governs the layout and intialization of all of the sub-windows
 // If you're looking for the internals of the CAD System, they're in /js/CADWorker
 // If you're looking for the 3D Three.js Viewport, they're in /js/MainPage/CascadeView*
@@ -198,11 +209,11 @@ export function initialize(projectContent = null) {
              *  inside the CAD Worker thread.*/
             monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
-                if (workerWorking) { return; }
-
+                if (workerWorking.isWorking) { return; }
+                
                 // Set the "workerWorking" flag, so we don't submit 
                 // multiple jobs to the worker thread simultaneously
-                workerWorking = true;
+                workerWorking.isWorking = true;
 
                 // Refresh these every so often to ensure we're always getting intellisense
                 monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
@@ -376,7 +387,9 @@ export function initialize(projectContent = null) {
             };
             // Call this console.log when triggered from the WASM
             messageHandlers["log"  ] = (payload) => { console.log(payload); };
-            messageHandlers["error"] = (payload) => { workerWorking = false; console.error(payload); };
+            messageHandlers["error"] = (payload) => { 
+              workerWorking.isWorking = false; console.error(payload); 
+            };
 
             // Print Errors in Red
             window.onerror = function (err, url, line, colno, errorObj) {
@@ -473,7 +486,9 @@ export function initialize(projectContent = null) {
         if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default; }
         guiPanel.addCheckbox(GUIState, payload.name, { onChange: () => { monacoEditor.evaluateCode() } });
     }
-    messageHandlers["resetWorking"] = () => { workerWorking = false; }
+    messageHandlers["resetWorking"] = () => {
+      workerWorking.isWorking = false;
+    }
 }
 
 async function getNewFileHandle(desc, mime, ext, open = false) {
@@ -524,7 +539,7 @@ async function saveProject() {
 /** This loads a .json file as the currentProject.*/
 const loadProject = async () => {
     // Don't allow loading while the worker is working to prevent race conditions.
-    if (workerWorking) { return; }
+    if (workerWorking.isWorking) { return; }
 
     // Load Project .json from a file
     [file.handle] = await getNewFileHandle(
