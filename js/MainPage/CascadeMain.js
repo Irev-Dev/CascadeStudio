@@ -1,3 +1,9 @@
+import { CascadeEnvironment } from './CascadeView'
+import GoldenLayout from 'golden-layout'
+import 'golden-layout/src/css/goldenlayout-base.css'
+import 'golden-layout/src/css/goldenlayout-dark-theme.css'
+import ControlKit from 'controlkit'
+import * as monaco from 'monaco-editor'
 // This script governs the layout and intialization of all of the sub-windows
 // If you're looking for the internals of the CAD System, they're in /js/CADWorker
 // If you're looking for the 3D Three.js Viewport, they're in /js/MainPage/CascadeView*
@@ -5,7 +11,6 @@
 var myLayout, monacoEditor, threejsViewport,
     consoleContainer, consoleGolden, codeContainer, gui,
     guiPanel, GUIState, count = 0, //focused = true,
-    messageHandlers = {}, workerWorking = false,
     startup, file = {}, realConsoleLog;
 
 let starterCode = 
@@ -29,7 +34,7 @@ Translate([-25, 0, 40], Text3D("Hi!"));
 
 // Don't forget to push imported or oc-defined shapes into sceneShapes to add them to the workspace!`;
 
-function initialize(projectContent = null) {
+export function initialize(projectContent = null) {
     this.searchParams = new URLSearchParams(window.location.search);
 
     // Load the initial Project from - "projectContent", the URL, or the Gallery

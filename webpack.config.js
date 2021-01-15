@@ -1,9 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const config = {
-  entry: './src/index.js',
+  entry: ['babel-polyfill', './src/index.js'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js'
@@ -28,6 +29,18 @@ const config = {
           },
           'postcss-loader'
         ]
+      },
+      {
+        test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/'
+            }
+          }
+        ]
       }
     ]
   },
@@ -36,7 +49,8 @@ const config = {
       appMountId: 'app',
       filename: 'index.html',
       template: 'index.html'
-    })
+    }),
+    new MonacoWebpackPlugin(),
   ],
   optimization: {
     runtimeChunk: 'single',

@@ -1,3 +1,6 @@
+import * as THREE from '../../static_node_modules/three/build/three'
+import {initializeHandleGizmos} from './CascadeViewHandles'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 // This file governs the 3D Viewport which displays the 3D Model
 // It is also in charge of saving to STL and OBJ
 
@@ -71,7 +74,7 @@ var Environment = function (goldenContainer) {
     this.scene.add(this.grid);
 
     // Set up the orbit controls used for Cascade Studio
-    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.target.set(0, 45, 0);
     this.controls.panSpeed  = 2;
     this.controls.zoomSpeed = 1;
@@ -105,7 +108,7 @@ var Environment = function (goldenContainer) {
 }
 
 /** This "inherits" from Environment (by including it as a sub object) */
-var CascadeEnvironment = function (goldenContainer) {
+export function CascadeEnvironment (goldenContainer) {
   this.active          = true;
   this.goldenContainer = goldenContainer;
   this.environment     = new Environment(this.goldenContainer);

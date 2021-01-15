@@ -1,7 +1,9 @@
+import * as THREE from '../../static_node_modules/three/build/three'
+
 // This file handles Transformation Gizmos
 
 /** Adds Handle Gizmo Functionality to the Cascade View */
-function initializeHandleGizmos(threejsViewport){
+export function initializeHandleGizmos(threejsViewport){
   /** Create a Transformation Gizmo in the Scene View */
   messageHandlers["createTransformHandle"] = function (payload) {
     if (payload.lineAndColumn[0] <= 0) {
