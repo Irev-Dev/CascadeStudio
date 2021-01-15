@@ -9,7 +9,7 @@
 // (Optional) If base functions appear to be missing, fork opencascade.js and add them to this file: 
 //  - https://github.com/donalffons/opencascade.js/blob/master/opencascade.idl
 //  - Upon push, Github Actions will build a new version of the library and commit it back to the repo
-//  - From there, you can graft those into CascadeStudio/node_modules/opencascade.js/dist (following its existing conventions)
+//  - From there, you can graft those into CascadeStudio/static_node_modules/opencascade.js/dist (following its existing conventions)
 
 /** Import Misc. Utilities that aren't part of the Exposed Library */
 importScripts('./CascadeStudioStandardUtils.js');

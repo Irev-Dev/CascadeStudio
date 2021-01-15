@@ -23,11 +23,11 @@ console.error = function (err, url, line, colno, errorObj) {
 
 // Import the set of scripts we'll need to perform all the CAD operations
 importScripts(
-  '../../node_modules/three/build/three.min.js',
+  '../../static_node_modules/three/build/three.min.js',
   './CascadeStudioStandardLibrary.js',
   './CascadeStudioShapeToMesh.js',
-  '../../node_modules/opencascade.js/dist/opencascade.wasm.js',
-  '../../node_modules/opentype.js/dist/opentype.min.js');
+  '../../static_node_modules/opencascade.js/dist/opencascade.wasm.js',
+  '../../static_node_modules/opentype.js/dist/opentype.min.js');
 
 // Preload the Various Fonts that are available via Text3D
 var preloadedFonts = ['../../fonts/Roboto.ttf',
@@ -46,7 +46,7 @@ var messageHandlers = {};
 new opencascade({
   locateFile(path) {
     if (path.endsWith('.wasm')) {
-      return "../../node_modules/opencascade.js/dist/opencascade.wasm.wasm";
+      return "../../static_node_modules/opencascade.js/dist/opencascade.wasm.wasm";
     }
     return path;
   }
