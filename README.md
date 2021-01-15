@@ -78,3 +78,38 @@ Cascade Studio uses:
  - [rawinflate/rawdeflate](https://github.com/dankogai/js-deflate) (URL Code Serialization)
 
 Cascade Studio is maintained by [Johnathon Selstad @zalo](https://github.com/zalo)
+
+
+## Building and running on localhost
+
+First install dependencies:
+
+```sh
+yarn install
+```
+
+To create a production build:
+
+```sh
+yarn build-prod
+```
+
+To create a development build:
+
+```sh
+yarn build-dev
+```
+
+## Running
+
+```sh
+yarn dev
+```
+
+## Testing
+
+To run unit tests:
+
+```sh
+yarn test
+```
