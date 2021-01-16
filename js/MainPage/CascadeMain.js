@@ -331,8 +331,8 @@ export function initialize(projectContent = null) {
                     gui = new ControlKit({ parentDomElementId: "controlKit" });
                 } else {
                     // We are loading a new project, controlKit needs to have
-                    // it's node ovirriden with the new element
-                    gui._node._element = $('#controlKit')[0];
+                    // it's node overridden with the new element
+                    gui._node._element = document.getElementById('controlKit');
                 }
                 gui.clearPanels = function () {
                     let curNode = this._node._element;
@@ -522,7 +522,7 @@ export async function writeFile(fileHandle, contents) {
 
 /** This function serializes the Project's current state 
  * into a `.json` file and saves it to the selected location. */
-async function saveProject() {
+export async function saveProject() {
     let currentCode = monacoEditor.getValue();
     if (!file.handle) {
         file.handle = await getNewFileHandle(
@@ -539,7 +539,7 @@ async function saveProject() {
 }
 
 /** This loads a .json file as the currentProject.*/
-const loadProject = async () => {
+export const loadProject = async () => {
     // Don't allow loading while the worker is working to prevent race conditions.
     if (globalVars.workerWorking) { return; }
 
@@ -553,14 +553,14 @@ const loadProject = async () => {
     let fileSystemFile = await file.handle.getFile();
     let jsonContent = await fileSystemFile.text();
     window.history.replaceState({}, 'Cascade Studio','?');
-    initialize(projectContent=jsonContent);
+    new initialize(jsonContent);
     codeContainer.setTitle(file.handle.name);
     file.content = monacoEditor.getValue();
 }
 
 /** This function triggers the CAD WebWorker to 
  * load one or more  .stl, .step, or .iges files. */
-function loadFiles(fileElementID = "files") {
+export function loadFiles(fileElementID = "files") {
     // Ask the worker thread to load these files... 
     // I can already feel this not working...
     let files = document.getElementById(fileElementID).files;
@@ -579,7 +579,7 @@ function loadFiles(fileElementID = "files") {
 
 /** This function clears all Externally Loaded files 
  * from the `externalFiles` dict. */
-function clearExternalFiles() {
+export function clearExternalFiles() {
     cascadeStudioWorker.postMessage({
         "type": "clearExternalFiles"
     });

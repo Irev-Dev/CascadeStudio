@@ -1,4 +1,5 @@
 import "./styles.css";
+import "../css/main.css";
 import { initialize } from "../js/MainPage/CascadeMain";
 
 if ("serviceWorker" in navigator) {

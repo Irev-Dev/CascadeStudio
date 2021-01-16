@@ -5,7 +5,14 @@ import { initializeHandleGizmos } from "./CascadeViewHandles";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { messageHandlers, globalVars } from "../../src/globals";
 import cascadeStudioWorker from "../../src/workerInit";
-import { getNewFileHandle, writeFile } from "./CascadeMain";
+import {
+  getNewFileHandle,
+  writeFile,
+  loadProject,
+  saveProject,
+  loadFiles,
+  clearExternalFiles
+} from "./CascadeMain";
 // This file governs the 3D Viewport which displays the 3D Model
 // It is also in charge of saving to STL and OBJ
 
@@ -14,17 +21,28 @@ import { getNewFileHandle, writeFile } from "./CascadeMain";
 
 function setupSaveListeners() {
   document.getElementById("save-step").addEventListener("click", () => {
-    console.log("exporting the thing");
     globalVars.threejsViewport.saveShapeSTEP();
   });
   document.getElementById("save-stl").addEventListener("click", () => {
-    console.log("exporting the thing");
     globalVars.threejsViewport.saveShapeSTL();
   });
   document.getElementById("save-obj").addEventListener("click", () => {
-    console.log("exporting the thing");
     globalVars.threejsViewport.saveShapeOBJ();
   });
+  document.getElementById("load-project").addEventListener("click", () => {
+    loadProject();
+  });
+  document.getElementById("save-project").addEventListener("click", () => {
+    saveProject();
+  });
+  document.getElementById("files").addEventListener("click", () => {
+    loadFiles();
+  });
+  document
+    .getElementById("clear-external-files")
+    .addEventListener("click", () => {
+      clearExternalFiles();
+    });
 }
 setupSaveListeners();
 
