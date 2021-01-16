@@ -1,4 +1,4 @@
-import * as THREE from "../../static_node_modules/three/build/three";
+import * as THREE from "three";
 import { messageHandlers } from "../../src/globals";
 
 // This file handles Transformation Gizmos

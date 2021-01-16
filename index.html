@@ -48,9 +48,9 @@
             <a href="https://github.com/zalo/CascadeStudio">Cascade Studio 0.0.6</a>
             <a href="#" title="Save Project to .json" onmouseup="saveProject();">Save Project</a>
             <a href="#" title="Load Project from .json" onmouseup="loadProject();">Load Project</a>
-            <a href="#" onmouseup="threejsViewport.saveShapeSTEP();">Save STEP</a>
-            <a href="#" onmouseup="threejsViewport.saveShapeSTL();">Save STL</a>
-            <a href="#" onmouseup="threejsViewport.saveShapeOBJ();">Save OBJ</a>
+            <a href="#" id="save-step">Save STEP</a>
+            <a href="#" id="save-stl">Save STL</a>
+            <a href="#" id="save-obj">Save OBJ</a>
             <label for="files" title="Import STEP, IGES, or (ASCII) STL from File">Import STEP/IGES/STL
                 <input id="files" name="files" type="file" accept=".iges,.step,.igs,.stp,.stl" multiple style="display:none;" oninput="loadFiles();"/>
             </label>

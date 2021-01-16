@@ -1,13 +1,33 @@
-import * as THREE from "../../static_node_modules/three/build/three";
+import * as THREE from "three";
+import { STLExporter } from "three/examples/jsm/exporters/STLExporter";
+import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { initializeHandleGizmos } from "./CascadeViewHandles";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { messageHandlers, workerWorking } from "../../src/globals";
+import { messageHandlers, globalVars } from "../../src/globals";
 import cascadeStudioWorker from "../../src/workerInit";
+import { getNewFileHandle, writeFile } from "./CascadeMain";
 // This file governs the 3D Viewport which displays the 3D Model
 // It is also in charge of saving to STL and OBJ
 
 /** Create the base class for a 3D Viewport.
  *  This includes the floor, the grid, the fog, the camera, and lights */
+
+function setupSaveListeners() {
+  document.getElementById("save-step").addEventListener("click", () => {
+    console.log("exporting the thing");
+    globalVars.threejsViewport.saveShapeSTEP();
+  });
+  document.getElementById("save-stl").addEventListener("click", () => {
+    console.log("exporting the thing");
+    globalVars.threejsViewport.saveShapeSTL();
+  });
+  document.getElementById("save-obj").addEventListener("click", () => {
+    console.log("exporting the thing");
+    globalVars.threejsViewport.saveShapeOBJ();
+  });
+}
+setupSaveListeners();
+
 var Environment = function (goldenContainer) {
   this.goldenContainer = goldenContainer;
 
@@ -138,7 +158,7 @@ export function CascadeEnvironment (goldenContainer) {
 
   // A callback to load the Triangulated Shape from the Worker and add it to the Scene
   messageHandlers["combineAndRenderShapes"] = ([facelist, edgelist]) => {
-    workerWorking.isWorking = false;     // Untick this flag to allow Evaluations again
+    globalVars.workerWorking = false;     // Untick this flag to allow Evaluations again
     if (!facelist) { return;}  // Do nothing if the results are null
 
     // The old mainObject is dead!  Long live the mainObject!
@@ -269,7 +289,7 @@ export function CascadeEnvironment (goldenContainer) {
 
   /**  Save the current shape to an ASCII .stl */
   this.saveShapeSTL = async () => {
-    this.stlExporter = new THREE.STLExporter();
+    this.stlExporter = new STLExporter();
     let result = this.stlExporter.parse(this.mainObject);
     
     const fileHandle = await getNewFileHandle("STL files", "text/plain", "stl");
@@ -280,7 +300,7 @@ export function CascadeEnvironment (goldenContainer) {
 
   /**  Save the current shape to .obj */
   this.saveShapeOBJ = async () => {
-    this.objExporter = new THREE.OBJExporter();
+    this.objExporter = new OBJExporter();
     let result = this.objExporter.parse(this.mainObject);
     
     const fileHandle = await getNewFileHandle("OBJ files", "text/plain", "obj");

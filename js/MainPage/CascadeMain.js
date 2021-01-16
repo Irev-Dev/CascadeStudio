@@ -5,13 +5,15 @@ import "golden-layout/src/css/goldenlayout-base.css";
 import "golden-layout/src/css/goldenlayout-dark-theme.css";
 import ControlKit from "controlkit";
 import * as monaco from "monaco-editor";
-import {
-  messageHandlers,
-  workerWorking
-} from "../../src/globals";
-import cascadeStudioWorker from '../../src/workerInit';
+
 import '../../static_node_modules/rawflate/rawdeflate'
 import '../../static_node_modules/rawflate/rawinflate'
+
+import {
+    messageHandlers,
+    globalVars
+} from "../../src/globals";
+import cascadeStudioWorker from '../../src/workerInit';
 
 
 
@@ -19,7 +21,7 @@ import '../../static_node_modules/rawflate/rawinflate'
 // If you're looking for the internals of the CAD System, they're in /js/CADWorker
 // If you're looking for the 3D Three.js Viewport, they're in /js/MainPage/CascadeView*
 
-var myLayout, monacoEditor, threejsViewport,
+var myLayout, monacoEditor,
     consoleContainer, consoleGolden, codeContainer, gui,
     guiPanel, GUIState, count = 0, //focused = true,
     startup, file = {}, realConsoleLog;
@@ -209,11 +211,11 @@ export function initialize(projectContent = null) {
              *  inside the CAD Worker thread.*/
             monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
-                if (workerWorking.isWorking) { return; }
+                if (globalVars.workerWorking) { return; }
                 
                 // Set the "workerWorking" flag, so we don't submit 
                 // multiple jobs to the worker thread simultaneously
-                workerWorking.isWorking = true;
+                globalVars.workerWorking = true;
 
                 // Refresh these every so often to ensure we're always getting intellisense
                 monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
@@ -235,7 +237,7 @@ export function initialize(projectContent = null) {
                 }
 
                 // Remove any existing Transform Handles that could be laying around
-                threejsViewport.clearTransformHandles();
+                globalVars.threejsViewport.clearTransformHandles();
 
                 // Set up receiving files from the worker thread
                 // This lets users download arbitrary information 
@@ -315,9 +317,9 @@ export function initialize(projectContent = null) {
         container.setState(GUIState);
         myLayout.on("initialised", () => {
             // Destroy the existing editor if it exists
-            if (threejsViewport) {
-                threejsViewport.active = false;
-                threejsViewport = null;
+            if (globalVars.threejsViewport) {
+                globalVars.threejsViewport.active = false;
+                globalVars.threejsViewport = null;
             }
 
             let floatingGUIContainer = document.createElement("div");
@@ -341,7 +343,7 @@ export function initialize(projectContent = null) {
                 }.bind(gui);
             }
                 
-            threejsViewport = new CascadeEnvironment(container);
+            globalVars.threejsViewport = new CascadeEnvironment(container);
         });
     });
 
@@ -388,7 +390,7 @@ export function initialize(projectContent = null) {
             // Call this console.log when triggered from the WASM
             messageHandlers["log"  ] = (payload) => { console.log(payload); };
             messageHandlers["error"] = (payload) => { 
-              workerWorking.isWorking = false; console.error(payload); 
+              globalVars.workerWorking = false; console.error(payload); 
             };
 
             // Print Errors in Red
@@ -487,11 +489,11 @@ export function initialize(projectContent = null) {
         guiPanel.addCheckbox(GUIState, payload.name, { onChange: () => { monacoEditor.evaluateCode() } });
     }
     messageHandlers["resetWorking"] = () => {
-      workerWorking.isWorking = false;
+      globalVars.workerWorking = false;
     }
 }
 
-async function getNewFileHandle(desc, mime, ext, open = false) {
+export async function getNewFileHandle(desc, mime, ext, open = false) {
     const options = {
       types: [
         {
@@ -509,7 +511,7 @@ async function getNewFileHandle(desc, mime, ext, open = false) {
     }
 }
 
-async function writeFile(fileHandle, contents) {
+export async function writeFile(fileHandle, contents) {
     // Create a FileSystemWritableFileStream to write to.
     const writable = await fileHandle.createWritable();
     // Write the contents of the file to the stream.
@@ -539,7 +541,7 @@ async function saveProject() {
 /** This loads a .json file as the currentProject.*/
 const loadProject = async () => {
     // Don't allow loading while the worker is working to prevent race conditions.
-    if (workerWorking.isWorking) { return; }
+    if (globalVars.workerWorking) { return; }
 
     // Load Project .json from a file
     [file.handle] = await getNewFileHandle(

@@ -3,6 +3,7 @@
 // though they are still being mutated by whatever imports them.
 
 export const messageHandlers = {};
-export const workerWorking = {
-  isWorking: false
+export const globalVars = {
+  workerWorking: false,
+  threejsViewport: {}
 };
