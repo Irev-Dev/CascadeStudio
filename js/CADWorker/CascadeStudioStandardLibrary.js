@@ -12,7 +12,12 @@
 //  - From there, you can graft those into CascadeStudio/static_node_modules/opencascade.js/dist (following its existing conventions)
 
 /** Import Misc. Utilities that aren't part of the Exposed Library */
-importScripts('./CascadeStudioStandardUtils.js');
+import "./CascadeStudioStandardUtils.js";
+// import { CacheOp } from "./CascadeStudioStandardUtils.js";
+import { workerGlobals } from "./workerGlobals";
+let oc = workerGlobals.oc;
+let sceneShapes = workerGlobals.sceneShapes;
+// importScripts('./CascadeStudioStandardUtils.js');
 
 function Box(x, y, z, centered) {
   if (!centered) { centered = false;}
@@ -30,7 +35,7 @@ function Box(x, y, z, centered) {
   return curBox;
 }
 
-function Sphere(radius) {
+export function Sphere(radius) {
   let curSphere = CacheOp(arguments, () => {
     // Construct a Sphere Primitive
     let spherePlane = new oc.gp_Ax2(new oc.gp_Pnt(0, 0, 0), oc.gp.prototype.DZ());
@@ -124,7 +129,7 @@ function Text3D(text, size, height, fontName) {
 
   let textArgs = JSON.stringify(arguments);
   let curText = CacheOp(arguments, () => {
-    if (fonts[fontName] === undefined) { argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
+    if (fonts[fontName] === undefined) { workerGlobals.argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
     let textFaces = [];
     let commands = fonts[fontName].getPath(text, 0, 0, size).commands;
     for (let idx = 0; idx < commands.length; idx++) {
@@ -881,16 +886,16 @@ function SaveFile(filename, fileURL) {
   });
 }
 
-function Slider(name = "Val", defaultValue = 0.5, min = 0.0, max = 1.0, realTime=false, step, precision) {
-  if (!(name in GUIState)) { GUIState[name] = defaultValue; }
+export function Slider(name = "Val", defaultValue = 0.5, min = 0.0, max = 1.0, realTime=false, step, precision) {
+  if (!(name in workerGlobals.GUIState)) { workerGlobals.GUIState[name] = defaultValue; }
   if (!step) { step = 0.01; }
   if (typeof precision === "undefined") {
     precision = 2;
   } else if (precision % 1) { console.error("Slider precision must be an integer"); }
   
-  GUIState[name + "Range"] = [min, max];
+  workerGlobals.GUIState[name + "Range"] = [min, max];
   postMessage({ "type": "addSlider", payload: { name: name, default: defaultValue, min: min, max: max, realTime: realTime, step: step, dp: precision } });
-  return GUIState[name];
+  return workerGlobals.GUIState[name];
 }
 
 function Button(name = "Action") {
@@ -898,7 +903,7 @@ function Button(name = "Action") {
 }
 
 function Checkbox(name = "Toggle", defaultValue = false) {
-  if (!(name in GUIState)) { GUIState[name] = defaultValue; }
+  if (!(name in workerGlobals.GUIState)) { workerGlobals.GUIState[name] = defaultValue; }
   postMessage({ "type": "addCheckbox", payload: { name: name, default: defaultValue } });
-  return GUIState[name];
+  return workerGlobals.GUIState[name];
 }

@@ -1,9 +1,43 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Webpack App</title>
-  </head>
-  <body>
-  <script type="text/javascript" src="runtime.acfdeda3904d25c72cbb.js"></script><script type="text/javascript" src="main.9fa6783ad1aa5ed17662.js"></script></body>
+<html lang="en">
+    <head>
+        <title>Cascade Studio</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="application-name"   content="Cascade Studio">
+        <meta name="description"        content="A Full Live-Scripted CAD Kernel in the Browser">
+        <meta name="keywords"           content="SCAD, OpenSCAD, CAD, OpenCascade, Scripting">
+        <meta name="author"             content="Johnathon Selstad">
+        <meta name="viewport"           content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color"        content="#1e1e1e">
+
+        <!-- Include these early and directly so they happen first -->
+        <script>
+            // Install Cascade Studio as a Progressive Web App for Offline Access
+            // This needs to be put before ANY HTTP Requests are made, so it can cache them.
+        </script>
+
+        <link rel='shortcut icon'      href='./icon/favicon.ico' type='image/x-icon' >
+        <link rel="manifest"           href="./manifest.webmanifest">
+        <link rel="apple-touch-icon"   href="./icon/apple-touch-icon.png">
+
+    </head>
+
+    <body style="margin:0px; background-color:rgb(34, 34, 34); "><!--overflow:hidden; position:fixed;-->
+        <h1 hidden></h1> <!-- Puts the Lighthouse Score over 90 heheh-->
+        <div id="topnav" class="topnav">
+            <a href="https://github.com/zalo/CascadeStudio">Cascade Studio 0.0.6</a>
+            <a href="#" id="save-project" title="Save Project to .json">Save Project</a>
+            <a href="#" id="load-project" title="Load Project from .json">Load Project</a>
+            <a href="#" id="save-step">Save STEP</a>
+            <a href="#" id="save-stl">Save STL</a>
+            <a href="#" id="save-obj">Save OBJ</a>
+            <label for="files" title="Import STEP, IGES, or (ASCII) STL from File">Import STEP/IGES/STL
+                <input id="files" name="files" type="file" accept=".iges,.step,.igs,.stp,.stl" multiple style="display:none;"/>
+            </label>
+            <a href="#" id="clear-external-files" title="Clears the external step/iges/stl files stored in the project.">Clear Imported Files</a>
+        </div>
+        <div id="appbody" style="height:auto">
+        </div>
+
+    <script type="text/javascript" src="runtime.bundle.js"></script><script type="text/javascript" src="vendors.bundle.js"></script><script type="text/javascript" src="main.bundle.js"></script><script type="text/javascript" src="workerLibrary.bundle.js"></script></body>
 </html>

@@ -4,45 +4,57 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const config = {
-  entry: ['babel-polyfill', './src/index.js'],
+  entry: {
+    main: ["babel-polyfill", "./src/index.js"],
+    workerLibrary: "./js/CADWorker/CascadeStudioStandardLibrary.js"
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[contenthash].js'
+    // filename: '[name].[contenthash].js'
+    filename: '[name].bundle.js'
   },
   watch: true,
   module: {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader',
+        use: "babel-loader",
         exclude: /node_modules/
       },
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          "style-loader",
           {
-            loader: 'css-loader',
+            loader: "css-loader",
             options: {
               importLoaders: 1
             }
           },
-          'postcss-loader'
+          "postcss-loader"
         ]
       },
       {
         test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              name: '[name].[ext]',
-              outputPath: 'fonts/'
+              name: "[name].[ext]",
+              outputPath: "fonts/"
             }
           }
         ]
+      },
+      {
+        test: /opencascade\.wasm\.wasm$/,
+        type: "javascript/auto",
+        loader: "file-loader"
       }
     ]
+  },
+  node: {
+    fs: "empty"
   },
   plugins: [
     new HtmlWebpackPlugin({
