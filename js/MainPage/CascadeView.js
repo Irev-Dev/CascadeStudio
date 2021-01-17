@@ -19,7 +19,7 @@ import {
 /** Create the base class for a 3D Viewport.
  *  This includes the floor, the grid, the fog, the camera, and lights */
 
-function setupSaveListeners() {
+function setupIdeButtonListeners() {
   document.getElementById("save-step").addEventListener("click", () => {
     globalVars.threejsViewport.saveShapeSTEP();
   });
@@ -44,7 +44,7 @@ function setupSaveListeners() {
       clearExternalFiles();
     });
 }
-setupSaveListeners();
+setupIdeButtonListeners();
 
 var Environment = function (goldenContainer) {
   this.goldenContainer = goldenContainer;

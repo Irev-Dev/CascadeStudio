@@ -58,32 +58,6 @@ CascadeStudio/
 !static_node_modules/three/examples/js/exporters/
 !static_node_modules/three/examples/js/exporters/*
 
-# Golden-Layout Scripts
-!static_node_modules/golden-layout/
-!static_node_modules/golden-layout/*/
-!static_node_modules/golden-layout/index.d.ts
-!static_node_modules/golden-layout/dist/
-!static_node_modules/golden-layout/dist/*
-# Golden-Layout Scripts
-!static_node_modules/golden-layout/src/
-!static_node_modules/golden-layout/src/*/
-!static_node_modules/golden-layout/src/css/
-!static_node_modules/golden-layout/src/css/*
-
-# Monaco Editor Scripts
-!static_node_modules/monaco-editor
-!static_node_modules/monaco-editor/*
-!static_node_modules/monaco-editor/min/
-!static_node_modules/monaco-editor/min/**
-!static_node_modules/monaco-editor/min-maps/
-!static_node_modules/monaco-editor/min-maps/**
-
-# JQuery Scripts
-!static_node_modules/jquery/
-!static_node_modules/jquery/*/
-!static_node_modules/jquery/dist/
-!static_node_modules/jquery/dist/*
-
 # Raw Inflate and Deflate
 !static_node_modules/rawflate/
 !static_node_modules/rawflate/*
@@ -93,12 +67,6 @@ CascadeStudio/
 !static_node_modules/opentype.js/*/
 !static_node_modules/opentype.js/dist/
 !static_node_modules/opentype.js/dist/*
-
-# ControlKit Bin
-!static_node_modules/controlkit/
-!static_node_modules/controlkit/*/
-!static_node_modules/controlkit/bin/
-!static_node_modules/controlkit/bin/*
 
 # opencascade.js Bin
 !static_node_modules/opencascade.js/
