@@ -1,7 +1,5 @@
+import { workerGlobals } from "./workerGlobals";
 // Miscellaneous Helper Functions used in the Standard Library
-
-// Caching functions to speed up evaluation of slow redundant operations
-var argCache = {}; var usedHashes = {}; var opNumber = 0; var currentOp = ''; var currentLineNumber = 0;
 
 /** Hashes input arguments and checks the cache for that hash.  
  * It returns a copy of the cached object if it exists, but will 
@@ -9,32 +7,32 @@ var argCache = {}; var usedHashes = {}; var opNumber = 0; var currentOp = ''; va
  * added to the cache if `GUIState["Cache?"]` is true. */
 function CacheOp(args, cacheMiss) {
   //toReturn = cacheMiss();
-  currentOp = args.callee.name;
-  currentLineNumber = getCallingLocation()[0];
-  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber++, "opType": args.callee.name } }); // Poor Man's Progress Indicator
+  workerGlobals.currentOp = args.callee.name;
+  workerGlobals.currentLineNumber = getCallingLocation()[0];
+  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": args.callee.name } }); // Poor Man's Progress Indicator
   let toReturn = null;
-  let curHash = ComputeHash(args); usedHashes[curHash] = curHash;
+  let curHash = ComputeHash(args); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
   if (check && GUIState["Cache?"]) {
     //console.log("HIT    "+ ComputeHash(args) +  ", " +ComputeHash(args, true));
-    toReturn = new oc.TopoDS_Shape(check);
+    toReturn = new workerGlobals.oc.TopoDS_Shape(check);
     toReturn.hash = check.hash;
   } else {
     //console.log("MISSED " + ComputeHash(args) + ", " + ComputeHash(args, true));
     toReturn = cacheMiss();
     toReturn.hash = curHash;
-    if (GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
+    if (workerGlobals.GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
   }
-  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": null } }); // Poor Man's Progress Indicator
+  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": null } }); // Poor Man's Progress Indicator
   return toReturn;
 }
 /** Returns the cached object if it exists, or null otherwise. */
-function CheckCache(hash) { return argCache[hash] || null; }
+function CheckCache(hash) { return workerGlobals.argCache[hash] || null; }
 /** Adds this `shape` to the cache, indexable by `hash`. */
 function AddToCache(hash, shape) {
-  let cacheShape  = new oc.TopoDS_Shape(shape);
+  let cacheShape  = new workerGlobals.oc.TopoDS_Shape(shape);
   cacheShape.hash = hash; // This is the cached version of the object
-  argCache[hash]  = cacheShape;
+  workerGlobals.argCache[hash]  = cacheShape;
   return hash;
 }
 
@@ -131,7 +129,7 @@ function getCallingLocation() {
 function convertToPnt(pnt) {
   let point = pnt; // Accept raw gp_Points if we got 'em
   if (point.length) {
-    point = new oc.gp_Pnt(point[0], point[1], (point[2])?point[2]:0);
+    point = new workerGlobals.oc.gp_Pnt(point[0], point[1], (point[2])?point[2]:0);
   }
   return point;
 }

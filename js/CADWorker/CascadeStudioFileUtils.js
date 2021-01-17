@@ -1,4 +1,6 @@
 // File Import and Export Utilities
+import { workerGlobals } from "./workerGlobals";
+let oc = workerGlobals.oc;
 
 /** This function synchronously loads the "files" in the 
  * current project into the `externalFiles` dictionary upon startup.*/
@@ -12,7 +14,7 @@ function loadPrexistingExternalFiles(externalFileDict) {
     }
   }
 }
-messageHandlers["loadPrexistingExternalFiles"] = loadPrexistingExternalFiles;
+workerGlobals.messageHandlers["loadPrexistingExternalFiles"] = loadPrexistingExternalFiles;
 
 /** This function synchronously reads the text contents of a file. */
 const loadFileSync = async (file) => {
@@ -25,7 +27,7 @@ const loadFileSync = async (file) => {
  * `externalShapes` dictionary and renders them to the viewport. */
 function loadFiles(files) {
   let extFiles = {};
-  sceneShapes = [];
+  workerGlobals.sceneShapes = [];
   for (let i = 0; i < files.length; i++) {
     var lastImportedShape = null;
     loadFileSync(files[i]).then(async (fileText) => {
@@ -38,12 +40,12 @@ function loadFiles(files) {
       extFiles[fileName] = { content: fileText };
     }).then(async () => {
       if (lastImportedShape) {
-        sceneShapes.push(lastImportedShape);
+        workerGlobals.sceneShapes.push(lastImportedShape);
       }
       if (i === files.length - 1) {
         if (lastImportedShape) {
           console.log("Imports complete, rendering shapes now...");
-          let response = messageHandlers["combineAndRenderShapes"]({ maxDeviation: GUIState['MeshRes'] || 0.1 });
+          let response = workerGlobals.messageHandlers["combineAndRenderShapes"]({ maxDeviation: workerGlobals.GUIState['MeshRes'] || 0.1 });
           postMessage({ "type": "combineAndRenderShapes", payload: response });
         }
       }
@@ -53,7 +55,7 @@ function loadFiles(files) {
     });
   };
 }
-messageHandlers["loadFiles"] = loadFiles;
+workerGlobals.messageHandlers["loadFiles"] = loadFiles;
 
 /** This function parses the ASCII contents of a `.STEP` or `.IGES` 
  * File as a Shape into the `externalShapes` dictionary. */
@@ -76,14 +78,14 @@ function importSTEPorIGES(fileName, fileText) {
     let stepShape           = reader.OneShape();         // Obtain the results of translation in one OCCT shape
     
     // Add to the externalShapes dictionary
-    externalShapes[fileName] = new oc.TopoDS_Shape(stepShape);
-    externalShapes[fileName].hash = stringToHash(fileName);
+    workerGlobals.externalShapes[fileName] = new oc.TopoDS_Shape(stepShape);
+    workerGlobals.externalShapes[fileName].hash = stringToHash(fileName);
     console.log("Shape Import complete! Use sceneShapes.push(externalShapes['"+fileName+"']); to add it to the scene!");
     
     // Remove the file when we're done (otherwise we run into errors on reupload)
     oc.FS.unlink("/" + fileName);
     
-    return externalShapes[fileName];
+    return workerGlobals.externalShapes[fileName];
   } else {
     console.error("Something in OCCT went wrong trying to read " + fileName);
     return null;
@@ -108,14 +110,14 @@ function importSTL(fileName, fileText) {
     solidSTL.Add(new oc.TopoDS_Shape(readShape));
 
     // Add to the externalShapes dictionary
-    externalShapes[fileName] = new oc.TopoDS_Shape(solidSTL.Solid());
-    externalShapes[fileName].hash = stringToHash(fileName);
+    workerGlobals.externalShapes[fileName] = new oc.TopoDS_Shape(solidSTL.Solid());
+    workerGlobals.externalShapes[fileName].hash = stringToHash(fileName);
     console.log("Shape Import complete! Use sceneShapes.push(externalShapes['" + fileName + "']); to see it!");
     
     // Remove the file when we're done (otherwise we run into errors on reupload)
     oc.FS.unlink("/" + fileName);
     
-    return externalShapes[fileName];
+    return workerGlobals.externalShapes[fileName];
   } else {
     console.log("Something in OCCT went wrong trying to read " + fileName + ".  \n" +
       "Cascade Studio only imports small ASCII stl files for now!");
@@ -128,7 +130,7 @@ function importSTL(fileName, fileText) {
 function saveShapeSTEP (filename = "CascadeStudioPart.step") {
   let writer = new oc.STEPControl_Writer();
   // Convert to a .STEP File
-  let transferResult = writer.Transfer(currentShape, 0);
+  let transferResult = writer.Transfer(workerGlobals.currentShape, 0);
   if (transferResult === 1) {
     // Write the STEP File to the virtual Emscripten Filesystem Temporarily
     let writeResult = writer.Write(filename);
@@ -146,7 +148,7 @@ function saveShapeSTEP (filename = "CascadeStudioPart.step") {
     console.error("TRANSFER TO STEP WRITER FAILED.");
   }
 }
-messageHandlers["saveShapeSTEP"] = saveShapeSTEP;
+workerGlobals.messageHandlers["saveShapeSTEP"] = saveShapeSTEP;
 
 /** Removes the externally imported shapes/files from the project. */ 
-messageHandlers["clearExternalFiles"] = () => { externalShapes = {}; };
+workerGlobals.messageHandlers["clearExternalFiles"] = () => { workerGlobals.externalShapes = {}; };

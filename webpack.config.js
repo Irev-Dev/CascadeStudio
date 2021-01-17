@@ -4,10 +4,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const config = {
-  entry: ["babel-polyfill", "./src/index.js"],
+  entry: {
+    main: ["babel-polyfill", "./src/index.js"],
+    workerLibrary: "./js/CADWorker/CascadeStudioStandardLibrary.js"
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].[contenthash].js"
+    filename: "[name].bundle.js"
   },
   watch: true,
   module: {
@@ -41,8 +44,16 @@ const config = {
             }
           }
         ]
+      },
+      {
+        test: /opencascade\.wasm\.wasm$/,
+        type: "javascript/auto",
+        loader: "file-loader"
       }
     ]
+  },
+  node: {
+    fs: "empty"
   },
   plugins: [
     new HtmlWebpackPlugin({
