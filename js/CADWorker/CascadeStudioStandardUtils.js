@@ -1,21 +1,27 @@
 import { workerGlobals } from "./workerGlobals";
 // Miscellaneous Helper Functions used in the Standard Library
 
+function getCalleeName(fn) {
+  var ret = fn.toString();
+  ret = ret.substr("function ".length);
+  ret = ret.substr(0, ret.indexOf("("));
+  return ret;
+}
+
 /** Hashes input arguments and checks the cache for that hash.  
  * It returns a copy of the cached object if it exists, but will 
  * call the `cacheMiss()` callback otherwise. The result will be 
  * added to the cache if `GUIState["Cache?"]` is true. */
-export function CacheOp(args, cacheMiss) {
+export function CacheOp(callee, cacheMiss) {
   //toReturn = cacheMiss();
-  // TODO solve callee strict mode problem
-  // workerGlobals.currentOp = args.callee.name;
+  workerGlobals.currentOp = getCalleeName(callee);
   workerGlobals.currentLineNumber = getCallingLocation()[0];
-  // postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": args.callee.name } }); // Poor Man's Progress Indicator
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "unknown" } }); // Poor Man's Progress Indicator
+  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
+  // postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "unknown" } }); // Poor Man's Progress Indicator
   let toReturn = null;
-  let curHash = ComputeHash(args); workerGlobals.usedHashes[curHash] = curHash;
+  let curHash = ComputeHash(callee); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
-  if (check && GUIState["Cache?"]) {
+  if (check && workerGlobals.GUIState["Cache?"]) {
     //console.log("HIT    "+ ComputeHash(args) +  ", " +ComputeHash(args, true));
     toReturn = new workerGlobals.oc.TopoDS_Shape(check);
     toReturn.hash = check.hash;
@@ -40,14 +46,13 @@ function AddToCache(hash, shape) {
 
 /** This function computes a 32-bit integer hash given a set of `arguments`.  
  * If `raw` is true, the raw set of sanitized arguments will be returned instead. */
-function ComputeHash(args, raw) {
-  let argsString = JSON.stringify(args);
+export function ComputeHash(callee, raw) {
+  let argsString = JSON.stringify(getCalleeName(callee));
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*?)\,)/g, '');
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*))/g, '');
   if (argsString.includes("ptr")) { console.error("YOU DONE MESSED UP YOUR REGEX."); }
   // TODO solve callee strict mode problem
-  let hashString = argsString;// + GUIState["MeshRes"];
-  // let hashString = args.callee.name + argsString;// + GUIState["MeshRes"];
+  let hashString = getCalleeName(callee) + argsString;// + GUIState["MeshRes"];
   if (raw) { return hashString; }
   return stringToHash(hashString);
 }
