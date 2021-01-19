@@ -5,11 +5,13 @@ import { workerGlobals } from "./workerGlobals";
  * It returns a copy of the cached object if it exists, but will 
  * call the `cacheMiss()` callback otherwise. The result will be 
  * added to the cache if `GUIState["Cache?"]` is true. */
-function CacheOp(args, cacheMiss) {
+export function CacheOp(args, cacheMiss) {
   //toReturn = cacheMiss();
-  workerGlobals.currentOp = args.callee.name;
+  // TODO solve callee strict mode problem
+  // workerGlobals.currentOp = args.callee.name;
   workerGlobals.currentLineNumber = getCallingLocation()[0];
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": args.callee.name } }); // Poor Man's Progress Indicator
+  // postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": args.callee.name } }); // Poor Man's Progress Indicator
+  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "unknown" } }); // Poor Man's Progress Indicator
   let toReturn = null;
   let curHash = ComputeHash(args); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
@@ -43,7 +45,9 @@ function ComputeHash(args, raw) {
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*?)\,)/g, '');
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*))/g, '');
   if (argsString.includes("ptr")) { console.error("YOU DONE MESSED UP YOUR REGEX."); }
-  let hashString = args.callee.name + argsString;// + GUIState["MeshRes"];
+  // TODO solve callee strict mode problem
+  let hashString = argsString;// + GUIState["MeshRes"];
+  // let hashString = args.callee.name + argsString;// + GUIState["MeshRes"];
   if (raw) { return hashString; }
   return stringToHash(hashString);
 }
@@ -72,7 +76,7 @@ function recursiveTraverse(x, callback) {
 }
 
 /** This function returns a version of the `inputArray` without the `objectToRemove`. */
-function Remove(inputArray, objectToRemove) {
+export function Remove(inputArray, objectToRemove) {
   return inputArray.filter((el) => {
     return el.hash !== objectToRemove.hash ||
            el.ptr  !== objectToRemove.ptr;

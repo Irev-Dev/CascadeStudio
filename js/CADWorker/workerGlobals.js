@@ -8,7 +8,7 @@ export const workerGlobals = {
   oc: null,
   externalShapes: {},
   sceneShapes: [],
-  GUIState: undefined,
+  GUIState: {},
   currentShape: undefined,
   // ---
   fullShapeEdgeHashes: {},
