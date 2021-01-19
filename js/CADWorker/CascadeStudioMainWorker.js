@@ -1,5 +1,5 @@
 import "babel-polyfill";
-import { workerGlobals } from "./workerGlobals";
+import { workerGlobals, oc, setOc } from "./workerGlobals";
 let sceneShapes = workerGlobals.sceneShapes;
 
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
@@ -51,7 +51,7 @@ preloadedFonts.forEach((fontURL) => {
 initOpenCascade().then(openCascade => {
   // Register the "OpenCascade" WebAssembly Module under the shorthand "oc"
   console.info("init, openCascade");
-  workerGlobals.oc = openCascade;
+  setOc(openCascade);
 
   // Ping Pong Messages Back and Forth based on their registration in messageHandlers
   onmessage = function (e) {
@@ -97,8 +97,8 @@ workerGlobals.messageHandlers["Evaluate"] = Evaluate;
  * and converts it to a mesh (and a set of edges) with `ShapeToMesh()`, and sends it off to be rendered. */
 function combineAndRenderShapes(payload) {
   // Initialize currentShape as an empty Compound Solid
-  workerGlobals.currentShape     = new workerGlobals.oc.TopoDS_Compound();
-  let sceneBuilder = new workerGlobals.oc.BRep_Builder();
+  workerGlobals.currentShape     = new oc.TopoDS_Compound();
+  let sceneBuilder = new oc.BRep_Builder();
   sceneBuilder.MakeCompound(workerGlobals.currentShape);
   let fullShapeEdgeHashes = {}; let fullShapeFaceHashes = {};
   postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "Combining Shapes" } });

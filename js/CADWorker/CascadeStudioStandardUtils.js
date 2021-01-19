@@ -1,4 +1,4 @@
-import { workerGlobals } from "./workerGlobals";
+import { workerGlobals, oc } from "./workerGlobals";
 // Miscellaneous Helper Functions used in the Standard Library
 
 function getCalleeName(fn) {
@@ -23,7 +23,7 @@ export function CacheOp(callee, cacheMiss) {
   let check = CheckCache(curHash);
   if (check && workerGlobals.GUIState["Cache?"]) {
     //console.log("HIT    "+ ComputeHash(args) +  ", " +ComputeHash(args, true));
-    toReturn = new workerGlobals.oc.TopoDS_Shape(check);
+    toReturn = new oc.TopoDS_Shape(check);
     toReturn.hash = check.hash;
   } else {
     //console.log("MISSED " + ComputeHash(args) + ", " + ComputeHash(args, true));
@@ -38,7 +38,7 @@ export function CacheOp(callee, cacheMiss) {
 function CheckCache(hash) { return workerGlobals.argCache[hash] || null; }
 /** Adds this `shape` to the cache, indexable by `hash`. */
 function AddToCache(hash, shape) {
-  let cacheShape  = new workerGlobals.oc.TopoDS_Shape(shape);
+  let cacheShape  = new oc.TopoDS_Shape(shape);
   cacheShape.hash = hash; // This is the cached version of the object
   workerGlobals.argCache[hash]  = cacheShape;
   return hash;
@@ -138,7 +138,7 @@ function getCallingLocation() {
 function convertToPnt(pnt) {
   let point = pnt; // Accept raw gp_Points if we got 'em
   if (point.length) {
-    point = new workerGlobals.oc.gp_Pnt(point[0], point[1], (point[2])?point[2]:0);
+    point = new oc.gp_Pnt(point[0], point[1], (point[2])?point[2]:0);
   }
   return point;
 }
