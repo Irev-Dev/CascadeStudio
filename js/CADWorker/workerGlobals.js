@@ -1,3 +1,5 @@
+import { initOpenCascade } from "opencascade.js";
+
 export const workerGlobals = {
   messageHandlers: {},
   opNumber: 0, // This keeps track of the progress of the evaluation
@@ -5,7 +7,6 @@ export const workerGlobals = {
   argCache: {},
   currentOp: "",
   usedHashes: {},
-  oc: null,
   externalShapes: {},
   sceneShapes: [],
   GUIState: {},
@@ -14,3 +15,6 @@ export const workerGlobals = {
   fullShapeEdgeHashes: {},
   fullShapeFaceHashes: {},
 };
+
+export let oc = null;
+export const setOc = ocInit => (oc = ocInit);
