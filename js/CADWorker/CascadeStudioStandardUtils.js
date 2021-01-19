@@ -17,7 +17,6 @@ export function CacheOp(callee, cacheMiss) {
   workerGlobals.currentOp = getCalleeName(callee);
   workerGlobals.currentLineNumber = getCallingLocation()[0];
   postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
-  // postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "unknown" } }); // Poor Man's Progress Indicator
   let toReturn = null;
   let curHash = ComputeHash(callee); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
@@ -51,7 +50,6 @@ export function ComputeHash(callee, raw) {
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*?)\,)/g, '');
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*))/g, '');
   if (argsString.includes("ptr")) { console.error("YOU DONE MESSED UP YOUR REGEX."); }
-  // TODO solve callee strict mode problem
   let hashString = getCalleeName(callee) + argsString;// + GUIState["MeshRes"];
   if (raw) { return hashString; }
   return stringToHash(hashString);
