@@ -1,5 +1,6 @@
 // File Import and Export Utilities
 import { workerGlobals, oc } from "./workerGlobals";
+import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
 /** This function synchronously loads the "files" in the 
  * current project into the `externalFiles` dictionary upon startup.*/

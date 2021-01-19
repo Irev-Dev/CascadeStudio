@@ -12,7 +12,15 @@
 //  - From there, you can graft those into CascadeStudio/static_node_modules/opencascade.js/dist (following its existing conventions)
 
 /** Import Misc. Utilities that aren't part of the Exposed Library */
-import { CacheOp, Remove, ComputeHash } from "./CascadeStudioStandardUtils.js";
+import {
+  CacheOp,
+  Remove,
+  ComputeHash,
+  stringToHash,
+  convertToPnt,
+  getCallingLocation,
+  isArrayLike
+} from "./CascadeStudioStandardUtils.js";
 import { workerGlobals, oc } from "./workerGlobals";
 let sceneShapes = workerGlobals.sceneShapes;
 
