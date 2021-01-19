@@ -12,13 +12,13 @@
 //  - From there, you can graft those into CascadeStudio/static_node_modules/opencascade.js/dist (following its existing conventions)
 
 /** Import Misc. Utilities that aren't part of the Exposed Library */
-import { CacheOp, Remove } from "./CascadeStudioStandardUtils.js";
+import { CacheOp, Remove, ComputeHash } from "./CascadeStudioStandardUtils.js";
 import { workerGlobals } from "./workerGlobals";
 let sceneShapes = workerGlobals.sceneShapes;
 
 export function Box(x, y, z, centered) {
   if (!centered) { centered = false;}
-  let curBox = CacheOp(arguments, () => {
+  let curBox = CacheOp(Box, () => {
     // Construct a Box Primitive
     let box = new workerGlobals.oc.BRepPrimAPI_MakeBox(x, y, z).Shape();
     if (centered) {
@@ -33,7 +33,7 @@ export function Box(x, y, z, centered) {
 }
 
 export function Sphere(radius) {
-  let curSphere = CacheOp(arguments, () => {
+  let curSphere = CacheOp(Sphere, () => {
     // Construct a Sphere Primitive
     let spherePlane = new workerGlobals.oc.gp_Ax2(new workerGlobals.oc.gp_Pnt(0, 0, 0), workerGlobals.oc.gp.prototype.DZ());
     return new workerGlobals.oc.BRepPrimAPI_MakeSphere(spherePlane, radius).Shape();
@@ -44,7 +44,7 @@ export function Sphere(radius) {
 }
 
 function Cylinder(radius, height, centered) {
-  let curCylinder = CacheOp(arguments, () => {
+  let curCylinder = CacheOp(Cylinder, () => {
     let cylinderPlane = new workerGlobals.oc.gp_Ax2(new workerGlobals.oc.gp_Pnt(0, 0, centered ? -height / 2 : 0), new workerGlobals.oc.gp_Dir(0, 0, 1));
     return new workerGlobals.oc.BRepPrimAPI_MakeCylinder(cylinderPlane, radius, height).Shape();
   });
@@ -53,7 +53,7 @@ function Cylinder(radius, height, centered) {
 }
 
 function Cone(radius1, radius2, height) {
-  let curCone = CacheOp(arguments, () => {
+  let curCone = CacheOp(Cone, () => {
     return new workerGlobals.oc.BRepPrimAPI_MakeCone(radius1, radius2, height).Shape();
   });
   sceneShapes.push(curCone);
@@ -61,7 +61,7 @@ function Cone(radius1, radius2, height) {
 }
 
 function Polygon(points, wire) {
-  let curPolygon = CacheOp(arguments, () => {
+  let curPolygon = CacheOp(Polygon, () => {
     let gpPoints = [];
     for (let ind = 0; ind < points.length; ind++) {
       gpPoints.push(convertToPnt(points[ind]));
@@ -91,7 +91,7 @@ function Polygon(points, wire) {
 }
 
 function Circle(radius, wire) {
-  let curCircle = CacheOp(arguments, () => {
+  let curCircle = CacheOp(Circle, () => {
     let circle = new workerGlobals.oc.GC_MakeCircle(new workerGlobals.oc.gp_Ax2(new workerGlobals.oc.gp_Pnt(0, 0, 0),
       new workerGlobals.oc.gp_Dir(0, 0, 1)), radius).Value();
     let edge = new workerGlobals.oc.BRepBuilderAPI_MakeEdge(circle).Edge();
@@ -104,7 +104,7 @@ function Circle(radius, wire) {
 }
 
 function BSpline(inPoints, closed) {
-  let curSpline = CacheOp(arguments, () => {
+  let curSpline = CacheOp(BSpline, () => {
     let ptList = new workerGlobals.oc.TColgp_Array1OfPnt(1, inPoints.length + (closed ? 1 : 0));
     for (let pIndex = 1; pIndex <= inPoints.length; pIndex++) {
       ptList.SetValue(pIndex, convertToPnt(inPoints[pIndex - 1]));
@@ -124,8 +124,8 @@ function Text3D(text, size, height, fontName) {
   if (!height && height !== 0.0) { height  = 0.15; }
   if (!fontName) { fontName = "Consolas"; }
 
-  let textArgs = JSON.stringify(arguments);
-  let curText = CacheOp(arguments, () => {
+  let textArgs = JSON.stringify({ text, size, height, fontName });
+  let curText = CacheOp(Text3D, () => {
     if (fonts[fontName] === undefined) { workerGlobals.argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
     let textFaces = [];
     let commands = fonts[fontName].getPath(text, 0, 0, size).commands;
@@ -217,7 +217,7 @@ function GetSolidFromCompound(shape, index, keepOriginal) {
   if (!shape || shape.ShapeType() > 1 || shape.IsNull()) { console.error("Not a compound shape!"); return shape; }
   if (!index) { index = 0;}
 
-  let sol = CacheOp(arguments, () => {
+  let sol = CacheOp(GetSolidFromCompound, () => {
     let innerSolid = {}; let solidsFound = 0;
     ForEachSolid(shape, (i, s) => {
       if (i === index) { innerSolid = new workerGlobals.oc.TopoDS_Solid(s); } solidsFound++;
@@ -260,7 +260,7 @@ function GetWire(shape, index, keepOriginal) {
   if (!shape || shape.ShapeType() > 4 || shape.IsNull()) { console.error("Not a wire shape!"); return shape; }
   if (!index) { index = 0;}
 
-  let wire = CacheOp(arguments, () => {
+  let wire = CacheOp(GetWire, () => {
     let innerWire = {}; let wiresFound = 0;
     ForEachWire(shape, (i, s) => {
       if (i === index) { innerWire = new workerGlobals.oc.TopoDS_Wire(s); } wiresFound++;
@@ -299,7 +299,7 @@ function ForEachVertex(shape, callback) {
 }
 
 function FilletEdges(shape, radius, edgeList, keepOriginal) { 
-  let curFillet = CacheOp(arguments, () => {
+  let curFillet = CacheOp(FilletEdges, () => {
     let mkFillet = new workerGlobals.oc.BRepFilletAPI_MakeFillet(shape);
     let foundEdges = 0;
     ForEachEdge(shape, (index, edge) => {
@@ -317,7 +317,7 @@ function FilletEdges(shape, radius, edgeList, keepOriginal) {
 }
 
 function ChamferEdges(shape, distance, edgeList, keepOriginal) { 
-  let curChamfer = CacheOp(arguments, () => {
+  let curChamfer = CacheOp(ChamferEdges, () => {
     let mkChamfer = new workerGlobals.oc.BRepFilletAPI_MakeChamfer(shape);
     let foundEdges = 0;
     ForEachEdge(shape, (index, edge) => {
@@ -335,9 +335,8 @@ function ChamferEdges(shape, distance, edgeList, keepOriginal) {
 }
 
 function Transform(translation, rotation, scale, shapes) {
-  let args = arguments;
-  return CacheOp(arguments, () => {
-    if (args.length == 4) {
+  return CacheOp(Transform, () => {
+    if (typeof shapes !== "undefined") {
       // Create the transform gizmo and add it to the scene
       postMessage({ "type": "createTransformHandle", payload: { translation: translation, rotation: rotation, scale: scale, lineAndColumn: getCallingLocation() } });
       // Transform the Object(s)
@@ -351,7 +350,7 @@ function Transform(translation, rotation, scale, shapes) {
 }
 
 export function Translate(offset, shapes, keepOriginal) {
-  let translated = CacheOp(arguments, () => {
+  let translated = CacheOp(Translate, () => {
     let transformation = new workerGlobals.oc.gp_Trsf();
     transformation.SetTranslation(new workerGlobals.oc.gp_Vec(offset[0], offset[1], offset[2]));
     let translation = new workerGlobals.oc.TopLoc_Location(transformation);
@@ -377,7 +376,7 @@ function Rotate(axis, degrees, shapes, keepOriginal) {
   if (degrees === 0) {
     rotated = new workerGlobals.oc.TopoDS_Shape(shapes);
   } else {
-    rotated = CacheOp(arguments, () => {
+    rotated = CacheOp(Rotate, () => {
       let newRot;
       let transformation = new workerGlobals.oc.gp_Trsf();
       transformation.SetRotation(
@@ -400,7 +399,7 @@ function Rotate(axis, degrees, shapes, keepOriginal) {
 }
 
 function Scale(scale, shapes, keepOriginal) {
-  let scaled = CacheOp(arguments, () => {
+  let scaled = CacheOp(Scale, () => {
     let transformation = new workerGlobals.oc.gp_Trsf();
     transformation.SetScaleFactor(scale);
     let scaling = new workerGlobals.oc.TopLoc_Location(transformation);
@@ -424,7 +423,7 @@ function Scale(scale, shapes, keepOriginal) {
 // TODO: These ops can be more cache optimized since they're multiple sequential ops
 export function Union(objectsToJoin, keepObjects, fuzzValue, keepEdges) {
   if (!fuzzValue) { fuzzValue = 0.1; }
-  let curUnion = CacheOp(arguments, () => {
+  let curUnion = CacheOp(Union, () => {
     let combined = new workerGlobals.oc.TopoDS_Shape(objectsToJoin[0]);
     if (objectsToJoin.length > 1) {
       for (let i = 0; i < objectsToJoin.length; i++) {
@@ -453,7 +452,7 @@ export function Union(objectsToJoin, keepObjects, fuzzValue, keepEdges) {
 }
 
 export function Difference(mainBody, objectsToSubtract, keepObjects, fuzzValue = 0.1, keepEdges) {
-  let curDifference = CacheOp(arguments, () => {
+  let curDifference = CacheOp(Difference, () => {
     if (!mainBody || mainBody.IsNull()) { console.error("Main Shape in Difference is null!"); }
     
     let difference = new workerGlobals.oc.TopoDS_Shape(mainBody);
@@ -473,7 +472,7 @@ export function Difference(mainBody, objectsToSubtract, keepObjects, fuzzValue =
       difference = fusor.Shape();
     }
 
-    difference.hash = ComputeHash(arguments);
+    difference.hash = ComputeHash(Difference);
     if (GetNumSolidsInCompound(difference) === 1) {
       difference = GetSolidFromCompound(difference, 0);
     }
@@ -491,7 +490,7 @@ export function Difference(mainBody, objectsToSubtract, keepObjects, fuzzValue =
 
 function Intersection(objectsToIntersect, keepObjects, fuzzValue, keepEdges) {
   if (!fuzzValue) { fuzzValue = 0.1; }
-  let curIntersection = CacheOp(arguments, () => {
+  let curIntersection = CacheOp(Intersection, () => {
     let intersected = new workerGlobals.oc.TopoDS_Shape(objectsToIntersect[0]);
     if (objectsToIntersect.length > 1) {
       for (let i = 0; i < objectsToIntersect.length; i++) {
@@ -520,7 +519,7 @@ function Intersection(objectsToIntersect, keepObjects, fuzzValue, keepEdges) {
 }
 
 function Extrude(face, direction, keepFace) {
-  let curExtrusion = CacheOp(arguments, () => {
+  let curExtrusion = CacheOp(Extrude, () => {
     return new workerGlobals.oc.BRepPrimAPI_MakePrism(face,
       new workerGlobals.oc.gp_Vec(direction[0], direction[1], direction[2])).Shape();
   });
@@ -531,7 +530,7 @@ function Extrude(face, direction, keepFace) {
 }
 
 function RemoveInternalEdges(shape, keepShape) {
-  let cleanShape = CacheOp(arguments, () => {
+  let cleanShape = CacheOp(RemoveInternalEdges, () => {
     let fusor = new workerGlobals.oc.ShapeUpgrade_UnifySameDomain(shape);
     fusor.Build();
     return fusor.Shape();
@@ -546,7 +545,7 @@ function Offset(shape, offsetDistance, tolerance, keepShape) {
   if (!shape || shape.IsNull()) { console.error("Offset received Null Shape!"); }
   if (!tolerance) { tolerance = 0.1; }
   if (offsetDistance === 0.0) { return shape; }
-  let curOffset = CacheOp(arguments, () => {
+  let curOffset = CacheOp(Offset, () => {
     let offset = null;
     if (shape.ShapeType() === 5) {
       offset = new workerGlobals.oc.BRepOffsetAPI_MakeOffset();
@@ -576,7 +575,7 @@ function Offset(shape, offsetDistance, tolerance, keepShape) {
 function Revolve(shape, degrees, direction, keepShape, copy) {
   if (!degrees  ) { degrees   = 360.0; }
   if (!direction) { direction = [0, 0, 1]; }
-  let curRevolution = CacheOp(arguments, () => {
+  let curRevolution = CacheOp(Revolve, () => {
     if (degrees >= 360.0) {
       return new workerGlobals.oc.BRepPrimAPI_MakeRevol(shape,
         new workerGlobals.oc.gp_Ax1(new workerGlobals.oc.gp_Pnt(0, 0, 0),
@@ -597,7 +596,7 @@ function Revolve(shape, degrees, direction, keepShape, copy) {
 
 function RotatedExtrude(wire, height, rotation, keepWire) {
   if (!wire || wire.IsNull()) { console.error("RotatedExtrude received Null Wire!"); }
-  let curExtrusion = CacheOp(arguments, () => {
+  let curExtrusion = CacheOp(RotatedExtrude, () => {
     let upperPolygon = Rotate([0, 0, 1], rotation, Translate([0, 0, height], wire, true));
     sceneShapes = Remove(sceneShapes, upperPolygon);
 
@@ -636,7 +635,7 @@ function RotatedExtrude(wire, height, rotation, keepWire) {
 }
 
 function Loft(wires, keepWires) {
-  let curLoft = CacheOp(arguments, () => {
+  let curLoft = CacheOp(Loft, () => {
     let pipe = new workerGlobals.oc.BRepOffsetAPI_ThruSections(true);
 
     // Construct a Loft that passes through the wires
@@ -654,7 +653,7 @@ function Loft(wires, keepWires) {
 }
 
 function Pipe(shape, wirePath, keepInputs) {
-  let curPipe = CacheOp(arguments, () => {
+  let curPipe = CacheOp(Pipe, () => {
     let pipe = new workerGlobals.oc.BRepOffsetAPI_MakePipe(wirePath, shape);
     pipe.Build();
     return new workerGlobals.oc.TopoDS_Shape(pipe.Shape());
@@ -678,19 +677,19 @@ function Sketch(startingPoint) {
   this.lastPoint    = this.firstPoint;
   this.wireBuilder  = new workerGlobals.oc.BRepBuilderAPI_MakeWire();
   this.fillets      = [];
-  this.argsString   = ComputeHash(arguments, true);
+  this.argsString   = ComputeHash(Sketch, true);
 
   // Functions are: BSplineTo, Fillet, Wire, and Face
   this.Start = function (startingPoint) {
     this.firstPoint  = new workerGlobals.oc.gp_Pnt(startingPoint[0], startingPoint[1], 0);
     this.lastPoint   = this.firstPoint;
     this.wireBuilder = new workerGlobals.oc.BRepBuilderAPI_MakeWire();
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.Start, true);
     return this;
   }
 
   this.End = function (closed, reversed) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.End, true);
 
     if (closed &&
        (this.firstPoint.X() !== this.lastPoint.X() ||
@@ -720,7 +719,7 @@ function Sketch(startingPoint) {
   }
 
   this.Wire = function (reversed) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.Wire, true);
     //let wire = this.wires[this.wires.length - 1];
     this.applyFillets();
     this.faces[this.faces.length - 1].hash = stringToHash(this.argsString);
@@ -730,7 +729,7 @@ function Sketch(startingPoint) {
     return wire;
   }
   this.Face = function (reversed) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.Face, true);
     this.applyFillets();
     let face = this.faces[this.faces.length - 1];
     if (reversed) { face = face.Reversed(); }
@@ -769,7 +768,7 @@ function Sketch(startingPoint) {
   }
 
   this.AddWire = function (wire) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.AddWire, true);
     // This adds another wire (or edge??) to the currently constructing shape...
     this.wireBuilder.Add(wire);
     if (endPoint) { this.lastPoint = endPoint; } // Yike what to do here...?
@@ -777,7 +776,7 @@ function Sketch(startingPoint) {
   }
 
   this.LineTo = function (nextPoint) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.LineTo, true);
     let endPoint = null;
     if (nextPoint.X) {
       if (this.lastPoint.X() === nextPoint.X() &&
@@ -797,7 +796,7 @@ function Sketch(startingPoint) {
   }
 
   this.ArcTo = function (pointOnArc, arcEnd) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.ArcTo, true);
     let onArc          = new workerGlobals.oc.gp_Pnt(pointOnArc[0], pointOnArc[1], 0);
     let nextPoint      = new workerGlobals.oc.gp_Pnt(    arcEnd[0],     arcEnd[1], 0);
     let arcCurve       = new workerGlobals.oc.GC_MakeArcOfCircle(this.lastPoint, onArc, nextPoint).Value();
@@ -811,7 +810,7 @@ function Sketch(startingPoint) {
   // Constructs an order-N Bezier Curve where the first N-1 points are control points
   // and the last point is the endpoint of the curve
   this.BezierTo = function (bezierControlPoints) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.BezierTo, true);
     let ptList = new workerGlobals.oc.TColgp_Array1OfPnt(1, bezierControlPoints.length+1);
     ptList.SetValue(1, this.lastPoint);
     for (let bInd = 0; bInd < bezierControlPoints.length; bInd++){
@@ -829,7 +828,7 @@ function Sketch(startingPoint) {
 
   /* Constructs a BSpline from the previous point through this set of points */
   this.BSplineTo = function (bsplinePoints) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.BSplineTo, true);
     let ptList = new workerGlobals.oc.TColgp_Array1OfPnt(1, bsplinePoints.length+1);
     ptList.SetValue(1, this.lastPoint);
     for (let bInd = 0; bInd < bsplinePoints.length; bInd++){
@@ -845,13 +844,13 @@ function Sketch(startingPoint) {
   }
 
   this.Fillet = function (radius) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.Fillet, true);
     this.fillets.push({ x: this.lastPoint.X(), y: this.lastPoint.Y(), radius: radius });
     return this;
   }
 
   this.Circle = function (center, radius, reversed) {
-    this.argsString += ComputeHash(arguments, true);
+    this.argsString += ComputeHash(this.Circle, true);
     let circle = new workerGlobals.oc.GC_MakeCircle(new workerGlobals.oc.gp_Ax2(convertToPnt(center),
     new workerGlobals.oc.gp_Dir(0, 0, 1)), radius).Value();
     let edge = new workerGlobals.oc.BRepBuilderAPI_MakeEdge(circle).Edge();

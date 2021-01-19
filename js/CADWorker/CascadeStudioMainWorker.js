@@ -1,4 +1,3 @@
-// import "babel-core/register";
 import "babel-polyfill";
 import { workerGlobals } from "./workerGlobals";
 let sceneShapes = workerGlobals.sceneShapes;
@@ -9,7 +8,8 @@ const { ForEachEdge, ForEachFace } = standardLibraryModule;
 
 // Capture Logs and Errors and forward them to the main thread
 
-const runCode = (code) => {
+const runCode = code => {
+  // making the following functions available to eval
   const { Sphere, Box, Union, Translate, Difference } = standardLibraryModule;
   eval(code);
 };
@@ -69,10 +69,6 @@ function esm(templateStrings, ...substitutions) {
   }
   return "data:text/javascript;base64," + btoa(js);
 }
-// const m2 = esm`import {Slider, Sphere} from '${standardLibraryModule}'; `;
-
-// import(m2)
-//   .then(ns => assert.equal(ns.default, 'Hello!Hello!'));
 
 /** This function evaluates `payload.code` (the contents of the Editor Window)
  *  and sets the GUI State. */

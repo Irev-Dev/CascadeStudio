@@ -1,6 +1,5 @@
 // File Import and Export Utilities
 import { workerGlobals } from "./workerGlobals";
-// let oc = workerGlobals.oc;
 
 /** This function synchronously loads the "files" in the 
  * current project into the `externalFiles` dictionary upon startup.*/
