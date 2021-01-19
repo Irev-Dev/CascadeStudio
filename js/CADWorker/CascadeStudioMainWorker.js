@@ -2,13 +2,18 @@
 import "babel-polyfill";
 import { workerGlobals } from "./workerGlobals";
 let sceneShapes = workerGlobals.sceneShapes;
-console.error(sceneShapes)
-// Define the persistent global variables
-// var oc = null, externalShapes = {}, sceneShapes = [],
-//   GUIState, fullShapeEdgeHashes = {}, fullShapeFaceHashes = {},
-//   currentShape;
+
+import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
+import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
+const { ForEachEdge, ForEachFace } = standardLibraryModule;
 
 // Capture Logs and Errors and forward them to the main thread
+
+const runCode = (code) => {
+  const { Sphere, Box, Union, Translate, Difference } = standardLibraryModule;
+  eval(code);
+};
+
 let realConsoleLog   = console.log;
 let realConsoleError = console.error;
 console.log = function (message) {
@@ -26,33 +31,10 @@ console.error = function (err, url, line, colno, errorObj) {
   realConsoleError.apply(console, arguments);
 }; // This is actually accessed via worker.onerror in the main thread
 
-// Import the set of scripts we'll need to perform all the CAD operations
-// importScripts(
-//   '../../static_node_modules/three/build/three.min.js',
-//   './CascadeStudioStandardLibrary.js',
-//   './CascadeStudioShapeToMesh.js',
-//   '../../static_node_modules/opencascade.js/dist/opencascade.wasm.js',
-//   '../../static_node_modules/opentype.js/dist/opentype.min.js');
 
 import "../../static_node_modules/three/build/three.min.js";
-// import { Sphere, Cylinder, Rotate, Translate, Difference, Text3D } from "./CascadeStudioStandardLibrary.js";
-// require("./CascadeStudioStandardLibrary.js");
-import standardLibraryModule from "./CascadeStudioStandardLibrary.js";
-// console.error(hi);
-// console.error(Object.entries(hi));
-// importScripts('./CascadeStudioStandardLibrary.js')
-// importScripts("workerLibrary.bundle.js");
-// let hi = ''
-// fetch('workerLibrary.bundle.js').then(a => a.text().then(b => {
-//   hi = b
-//   console.log(b)
-// }))
-import "./CascadeStudioShapeToMesh.js";
-// import "opencascade.js/dist/opencascade.wasm.js"
 import { initOpenCascade } from "opencascade.js";
-// import "../../static_node_modules/opencascade.js/dist/opencascade.wasm.js";
 import opentype from "opentype.js";
-// import "../../static_node_modules/opentype.js/dist/opentype.min.js";
 
 // Preload the Various Fonts that are available via Text3D
 var preloadedFonts = ['../../fonts/Roboto.ttf',
@@ -66,18 +48,9 @@ preloadedFonts.forEach((fontURL) => {
   });
 });
 
-// Load the full Open Cascade Web Assembly Module
-// var messageHandlers = {};
-// new opencascade({
-//   locateFile(path) {
-//     if (path.endsWith('.wasm')) {
-//       return "../../static_node_modules/opencascade.js/dist/opencascade.wasm.wasm";
-//     }
-//     return path;
-//   }
-// }).then((openCascade) => {
 initOpenCascade().then(openCascade => {
   // Register the "OpenCascade" WebAssembly Module under the shorthand "oc"
+  console.info("init, openCascade");
   workerGlobals.oc = openCascade;
 
   // Ping Pong Messages Back and Forth based on their registration in messageHandlers
@@ -96,8 +69,6 @@ function esm(templateStrings, ...substitutions) {
   }
   return "data:text/javascript;base64," + btoa(js);
 }
-const m1 = esm`export function f() { return 'Hello!' }`;
-const m2 = esm`import {f} from '${m1}'; export default f()+f();`;
 // const m2 = esm`import {Slider, Sphere} from '${standardLibraryModule}'; `;
 
 // import(m2)
@@ -108,38 +79,8 @@ const m2 = esm`import {f} from '${m1}'; export default f()+f();`;
 function Evaluate(payload) {
   workerGlobals.opNumber = 0;
   workerGlobals.GUIState = payload.GUIState;
-  // const m2 = esm`import {Slider, Sphere} from '${standardLibraryModule}'; ${payload.code}`;
-  // const m2 = esm`import {Slider, Sphere} from 'workerLibrary.bundle.js'; ${payload.code}`;
-  // const m2 = esm`import {Slider, Sphere} from 'http://localhost:8080/workerLibrary.bundle.js'; ${payload.code}`;
-  // const js = `import {Slider, Sphere} from 'http://localhost:8080/workerLibrary.bundle.js'; ${payload.code}`;
-  // const js = `import {Slider, Sphere} from '/workerLibrary.bundle.js'; ${payload.code}`;
-  const js = `${payload.code}`;
-  // const uri = 'data:text/javascript;charset=utf-8,'
-  // + encodeURIComponent(js);
-  const uri = 'data:text/javascript;base64,' + btoa(js);
-  const m1 = esm`export function f() { return 'Hello!' }`;
-  const m2 = esm`import {f} from '${m1}'; export default f()+f();`;
-  // import(m2)
-  //   .then(ns => assert.equal(ns.default, 'Hello!Hello!'));
   try {
-    // import(uri)
-    import(m2)
-      .then(ns => {
-        console.log('hi')
-        console.log(ns, 'ns')
-      });
-    // eval(`${Slider.toString()} ${Sphere.toString()} ${payload.code}`);
-    // eval(`importScripts('./CascadeStudioStandardLibrary.js'); ${payload.code}`);
-    // eval(`importScripts("workerLibrary.bundle.js"); ${payload.code}`);
-    // eval(`${payload.code}`);
-    // eval(payload.code);
-    // eval(hi + " " + payload.code);
-    // message
-    // new Function('throw new Error(JSON.stringify({ hey: "hii", Sphere }));');
-    // new Function(
-    //   "console.log('hey'); console.log('hey again', Sphere);" + payload.code
-    // );
-    // new Function(payload.code);
+    runCode(payload.code);
   } catch (e) {
     setTimeout(() => {
       e.message = "Line " + workerGlobals.currentLineNumber + ": "  + workerGlobals.currentOp + "() encountered  " + e.message;
@@ -149,8 +90,9 @@ function Evaluate(payload) {
     postMessage({ type: "resetWorking" });
     // Clean Cache; remove unused Objects
     for (let hash in workerGlobals.argCache) {
-      if (!workerGlobals.usedHashes.hasOwnProperty(hash)) { delete workerGlobals.argCache[hash]; } }
-      workerGlobals.usedHashes = {};
+      if (!workerGlobals.usedHashes.hasOwnProperty(hash)) { delete workerGlobals.argCache[hash]; }
+    }
+    workerGlobals.usedHashes = {};
   }
 }
 workerGlobals.messageHandlers["Evaluate"] = Evaluate;
@@ -201,7 +143,3 @@ function combineAndRenderShapes(payload) {
   postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": "" } });
 }
 workerGlobals.messageHandlers["combineAndRenderShapes"] = combineAndRenderShapes;
-
-// Import the File IO Utilities
-import "./CascadeStudioFileUtils.js";
-// importScripts('./CascadeStudioFileUtils.js');

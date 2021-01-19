@@ -1,13 +1,13 @@
 import { workerGlobals } from "./workerGlobals";
-let oc = workerGlobals.oc;
+import { ForEachEdge, ForEachFace } from "./CascadeStudioStandardLibrary.js";
 
-function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHashes) {
+export function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHashes) {
     let facelist = [], edgeList = [];
     try {
-      shape = new oc.TopoDS_Shape(shape);
+      shape = new workerGlobals.oc.TopoDS_Shape(shape);
 
       // Set up the Incremental Mesh builder, with a precision
-      new oc.BRepMesh_IncrementalMesh(shape, maxDeviation, false, maxDeviation * 5);
+      new workerGlobals.oc.BRepMesh_IncrementalMesh(shape, maxDeviation, false, maxDeviation * 5);
 
       // Construct the edge hashes to assign proper indices to the edges
       let fullShapeEdgeHashes2 = {};
@@ -15,8 +15,8 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
       // Iterate through the faces and triangulate each one
       let triangulations = [];
       ForEachFace(shape, (faceIndex, myFace) => {
-        let aLocation = new oc.TopLoc_Location();
-        let myT = oc.BRep_Tool.prototype.Triangulation(myFace, aLocation);
+        let aLocation = new workerGlobals.oc.TopLoc_Location();
+        let myT = workerGlobals.oc.BRep_Tool.prototype.Triangulation(myFace, aLocation);
         if (myT.IsNull()) { console.error("Encountered Null Face!"); workerGlobals.argCache = {}; return; }
 
         let this_face = {
@@ -27,7 +27,7 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
           face_index: fullShapeFaceHashes[myFace.HashCode(100000000)]
         };
 
-        let pc = new oc.Poly_Connect(myT);
+        let pc = new workerGlobals.oc.Poly_Connect(myT);
         let Nodes = myT.get().Nodes();
 
         // write vertex buffer
@@ -40,8 +40,8 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
         }
 
         // write normal buffer
-        let myNormal = new oc.TColgp_Array1OfDir(Nodes.Lower(), Nodes.Upper());
-        let SST = new oc.StdPrs_ToolTriangulatedShape();
+        let myNormal = new workerGlobals.oc.TColgp_Array1OfDir(Nodes.Lower(), Nodes.Upper());
+        let SST = new workerGlobals.oc.StdPrs_ToolTriangulatedShape();
         SST.Normal(myFace, pc, myNormal);
         this_face.normal_coord = new Array(myNormal.Length() * 3);
         for(let i = 0; i < myNormal.Length(); i++) {
@@ -61,7 +61,7 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
           let n1 = t.Value(1);
           let n2 = t.Value(2);
           let n3 = t.Value(3);
-          if(orient !== oc.TopAbs_FORWARD) {
+          if(orient !== workerGlobals.oc.TopAbs_FORWARD) {
             let tmp = n1;
             n1 = n2;
             n2 = tmp;
@@ -84,7 +84,7 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
               edge_index: -1
             };
 
-            let myP = oc.BRep_Tool.prototype.PolygonOnTriangulation(myEdge, myT, aLocation);
+            let myP = workerGlobals.oc.BRep_Tool.prototype.PolygonOnTriangulation(myEdge, myT, aLocation);
             let edgeNodes = myP.get().Nodes();
 
             // write vertex buffer
@@ -117,9 +117,9 @@ function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHas
             edge_index: -1
           };
 
-          let aLocation = new oc.TopLoc_Location();
-          let adaptorCurve = new oc.BRepAdaptor_Curve(myEdge);
-          let tangDef = new oc.GCPnts_TangentialDeflection(adaptorCurve, maxDeviation, 0.1);
+          let aLocation = new workerGlobals.oc.TopLoc_Location();
+          let adaptorCurve = new workerGlobals.oc.BRepAdaptor_Curve(myEdge);
+          let tangDef = new workerGlobals.oc.GCPnts_TangentialDeflection(adaptorCurve, maxDeviation, 0.1);
 
           // write vertex buffer
           this_edge.vertex_coord = new Array(tangDef.NbPoints() * 3);
