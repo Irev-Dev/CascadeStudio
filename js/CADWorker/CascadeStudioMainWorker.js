@@ -10,7 +10,45 @@ const { ForEachEdge, ForEachFace } = standardLibraryModule;
 
 const runCode = code => {
   // making the following functions available to eval
-  const { Sphere, Box, Union, Translate, Difference } = standardLibraryModule;
+  const {
+    BSpline,
+    Box,
+    Button,
+    ChamferEdges,
+    Checkbox,
+    Circle,
+    Cone,
+    Cylinder,
+    Difference,
+    Extrude,
+    FilletEdges,
+    ForEachEdge,
+    ForEachFace,
+    ForEachShell,
+    ForEachSolid,
+    ForEachVertex,
+    ForEachWire,
+    GetNumSolidsInCompound,
+    GetSolidFromCompound,
+    GetWire,
+    Intersection,
+    Loft,
+    Offset,
+    Pipe,
+    Polygon,
+    RemoveInternalEdges,
+    Revolve,
+    Rotate,
+    RotatedExtrude,
+    Scale,
+    Sketch,
+    Slider,
+    Sphere,
+    Text3D,
+    Transform,
+    Translate,
+    Union
+  } = standardLibraryModule;
   eval(code);
 };
 
