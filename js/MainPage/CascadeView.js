@@ -3,7 +3,11 @@ import { STLExporter } from "three/examples/jsm/exporters/STLExporter";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import { initializeHandleGizmos } from "./CascadeViewHandles";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { messageHandlers, globalVars } from "../../src/globals";
+import {
+  messageHandlers,
+  globalVars,
+  setWorkerWorking
+} from "../../src/globals";
 import cascadeStudioWorker from "../../src/workerInit";
 import {
   getNewFileHandle,
@@ -176,7 +180,7 @@ export function CascadeEnvironment (goldenContainer) {
 
   // A callback to load the Triangulated Shape from the Worker and add it to the Scene
   messageHandlers["combineAndRenderShapes"] = ([facelist, edgelist]) => {
-    globalVars.workerWorking = false;     // Untick this flag to allow Evaluations again
+    setWorkerWorking(false);   // Untick this flag to allow Evaluations again
     if (!facelist) { return;}  // Do nothing if the results are null
 
     // The old mainObject is dead!  Long live the mainObject!

@@ -4,7 +4,9 @@
 
 export const messageHandlers = {};
 export const globalVars = {
-  workerWorking: false,
   threejsViewport: {},
   monacoEditor: undefined,
 };
+
+export let workerWorking = false;
+export const setWorkerWorking = val => (workerWorking = val);

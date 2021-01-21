@@ -11,7 +11,9 @@ import '../../static_node_modules/rawflate/rawinflate'
 
 import {
     messageHandlers,
-    globalVars
+    globalVars,
+    workerWorking,
+    setWorkerWorking,
 } from "../../src/globals";
 import cascadeStudioWorker from '../../src/workerInit';
 
@@ -199,11 +201,11 @@ export function initialize(projectContent = null) {
              *  inside the CAD Worker thread.*/
             globalVars.monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
-                if (globalVars.workerWorking) { return; }
+                if (workerWorking) { return; }
                 
                 // Set the "workerWorking" flag, so we don't submit 
                 // multiple jobs to the worker thread simultaneously
-                globalVars.workerWorking = true;
+                setWorkerWorking(true)
 
                 // Refresh these every so often to ensure we're always getting intellisense
                 monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
@@ -378,7 +380,8 @@ export function initialize(projectContent = null) {
             // Call this console.log when triggered from the WASM
             messageHandlers["log"  ] = (payload) => { console.log(payload); };
             messageHandlers["error"] = (payload) => { 
-              globalVars.workerWorking = false; console.error(payload); 
+                setWorkerWorking(false)
+                console.error(payload); 
             };
 
             // Print Errors in Red
@@ -476,9 +479,7 @@ export function initialize(projectContent = null) {
         if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default; }
         guiPanel.addCheckbox(GUIState, payload.name, { onChange: () => { globalVars.monacoEditor.evaluateCode() } });
     }
-    messageHandlers["resetWorking"] = () => {
-      globalVars.workerWorking = false;
-    }
+    messageHandlers["resetWorking"] = () => setWorkerWorking(false)
 }
 
 export async function getNewFileHandle(desc, mime, ext, open = false) {
@@ -529,7 +530,7 @@ export async function saveProject() {
 /** This loads a .json file as the currentProject.*/
 export const loadProject = async () => {
     // Don't allow loading while the worker is working to prevent race conditions.
-    if (globalVars.workerWorking) { return; }
+    if (workerWorking) { return; }
 
     // Load Project .json from a file
     [file.handle] = await getNewFileHandle(
