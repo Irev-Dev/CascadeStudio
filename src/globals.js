@@ -5,5 +5,6 @@
 export const messageHandlers = {};
 export const globalVars = {
   workerWorking: false,
-  threejsViewport: {}
+  threejsViewport: {},
+  monacoEditor: undefined,
 };

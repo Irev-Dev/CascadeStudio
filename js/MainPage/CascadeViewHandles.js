@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { messageHandlers } from "../../src/globals";
+import { messageHandlers, globalVars } from "../../src/globals";
 
 // This file handles Transformation Gizmos
 
@@ -24,7 +24,7 @@ export function initializeHandleGizmos(threejsViewport){
 
       // Inject transform data back into the editor upon completion
       if (this.environment.controls.enabled) {
-        let code = monacoEditor.getValue().split("\n");
+        let code = globalVars.monacoEditor.getValue().split("\n");
         let lineNum = handle.lineAndColumn[0] - 1;
 
         let translateString = "[" +
@@ -60,8 +60,8 @@ export function initializeHandleGizmos(threejsViewport){
 
           let newCode = "";
           code.forEach((codeLine) => { newCode += codeLine + "\n"; });
-          monacoEditor.setValue(newCode.slice(0, -1));
-          monacoEditor.evaluateCode(false);
+          globalVars.monacoEditor.setValue(newCode.slice(0, -1));
+          globalVars.monacoEditor.evaluateCode(false);
         }
       }
     };

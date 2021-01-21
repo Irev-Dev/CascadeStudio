@@ -1,6 +1,6 @@
 import "babel-polyfill";
 import { workerGlobals, oc, setOc } from "./workerGlobals";
-import { sceneShapes, resetSceneShapes } from './sceneShapesService'
+import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
@@ -72,23 +72,29 @@ console.error = function (err, url, line, colno, errorObj) {
 
 import "../../static_node_modules/three/build/three.min.js";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
-import opentype from '../../static_node_modules/opentype.js/dist/opentype.js'
+import openType from "opentype.js";
 
 // Preload the Various Fonts that are available via Text3D
-var preloadedFonts = ['fonts/Roboto.ttf',
-'fonts/Papyrus.ttf', 'fonts/Consolas.ttf'];
+var preloadedFonts = [
+  "fonts/Roboto.ttf",
+  "fonts/Papyrus.ttf",
+  "fonts/Consolas.ttf"
+];
 
-preloadedFonts.forEach((fontURL) => {
-  opentype.load('/' + fontURL, function (err, font, kk) {
-    if (err) { console.log(err); }
-    let fontName = fontURL.split("fonts/")[1].split(".ttf")[0];
-    workerGlobals.fonts[fontName] = font;
-  });
-});
+Promise.all(preloadedFonts.map(async fontURL => fetch("/" + fontURL))).then(
+  async responses => {
+    const arrayBuffers = await Promise.all(
+      responses.map(response => response.arrayBuffer())
+    );
+    arrayBuffers.forEach((buffer, index) => {
+      let fontName = preloadedFonts[index].split("fonts/")[1].split(".ttf")[0];
+      workerGlobals.fonts[fontName] = openType.parse(buffer);
+    });
+  }
+);
 
 initOpenCascade().then(openCascade => {
   // Register the "OpenCascade" WebAssembly Module under the shorthand "oc"
-  console.info("init, openCascade");
   setOc(openCascade);
 
   // Ping Pong Messages Back and Forth based on their registration in messageHandlers

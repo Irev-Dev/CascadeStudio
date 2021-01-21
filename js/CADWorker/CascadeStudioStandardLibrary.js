@@ -126,10 +126,7 @@ export function BSpline(inPoints, closed) {
   return curSpline;
 }
 
-export function Text3D(text, size, height, fontName) {
-  if (!size   ) { size    = 36; }
-  if (!height && height !== 0.0) { height  = 0.15; }
-  if (!fontName) { fontName = "Consolas"; }
+export function Text3D(text, size = 36, height = 0.15, fontName = "Consolas") {
 
   let textArgs = JSON.stringify({ text, size, height, fontName });
   let curText = CacheOp(Text3D, () => {
