@@ -1,6 +1,6 @@
 import "babel-polyfill";
 import { workerGlobals, oc, setOc } from "./workerGlobals";
-let sceneShapes = workerGlobals.sceneShapes;
+import { sceneShapes, resetSceneShapes } from './sceneShapesService'
 
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
@@ -122,7 +122,7 @@ function combineAndRenderShapes(payload) {
     postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "Triangulating Faces" } });
     let facesAndEdges = ShapeToMesh(workerGlobals.currentShape,
       payload.maxDeviation||0.1, fullShapeEdgeHashes, fullShapeFaceHashes);
-    sceneShapes = [];
+    resetSceneShapes();
     postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": "" } }); // Finish the progress
     return facesAndEdges;
   } else {

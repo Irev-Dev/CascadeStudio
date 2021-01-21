@@ -14,7 +14,6 @@
 /** Import Misc. Utilities that aren't part of the Exposed Library */
 import {
   CacheOp,
-  Remove,
   ComputeHash,
   stringToHash,
   convertToPnt,
@@ -22,7 +21,7 @@ import {
   isArrayLike
 } from "./CascadeStudioStandardUtils.js";
 import { workerGlobals, oc } from "./workerGlobals";
-let sceneShapes = workerGlobals.sceneShapes;
+import { sceneShapes, RemoveFromSceneShapes } from './sceneShapesService'
 
 export function Box(x, y, z, centered) {
   if (!centered) { centered = false;}
@@ -198,7 +197,7 @@ function Text3D(text, size, height, fontName) {
     } else {
       textFaces[textFaces.length - 1].hash = stringToHash(textArgs);
       let textSolid = Rotate([1, 0, 0], -90, Extrude(textFaces[textFaces.length - 1], [0, 0, height * size]));
-      sceneShapes = Remove(sceneShapes, textSolid);
+      RemoveFromSceneShapes(textSolid);
       return textSolid;
     }
   });
@@ -235,7 +234,7 @@ function GetSolidFromCompound(shape, index, keepOriginal) {
     return innerSolid;
   });
 
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shape); }
   sceneShapes.push(sol);
 
   return sol;
@@ -278,7 +277,7 @@ function GetWire(shape, index, keepOriginal) {
     return innerWire;
   });
 
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shape); }
   sceneShapes.push(wire);
 
   return wire;
@@ -320,7 +319,7 @@ function FilletEdges(shape, radius, edgeList, keepOriginal) {
     return new oc.TopoDS_Solid(mkFillet.Shape());
   });
   sceneShapes.push(curFillet);
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shape); }
   return curFillet;
 }
 
@@ -338,7 +337,7 @@ function ChamferEdges(shape, distance, edgeList, keepOriginal) {
     return new oc.TopoDS_Solid(mkChamfer.Shape());
   });
   sceneShapes.push(curChamfer);
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shape); }
   return curChamfer;
 }
 
@@ -373,7 +372,7 @@ export function Translate(offset, shapes, keepOriginal) {
     }
   });
 
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shapes); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shapes); }
   sceneShapes.push(translated);
 
   return translated;
@@ -401,7 +400,7 @@ function Rotate(axis, degrees, shapes, keepOriginal) {
       return newRot;
     });
   }
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shapes); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shapes); }
   sceneShapes.push(rotated);
   return rotated;
 }
@@ -422,7 +421,7 @@ function Scale(scale, shapes, keepOriginal) {
     }
   });
 
-  if (!keepOriginal) { sceneShapes = Remove(sceneShapes, shapes); }
+  if (!keepOriginal) { RemoveFromSceneShapes(shapes); }
   sceneShapes.push(scaled);
 
   return scaled;
@@ -453,7 +452,7 @@ export function Union(objectsToJoin, keepObjects, fuzzValue, keepEdges) {
   });
 
   for (let i = 0; i < objectsToJoin.length; i++) {
-    if (!keepObjects) { sceneShapes = Remove(sceneShapes, objectsToJoin[i]); }
+    if (!keepObjects) { RemoveFromSceneShapes(objectsToJoin[i]); }
   }
   sceneShapes.push(curUnion);
   return curUnion;
@@ -488,9 +487,9 @@ export function Difference(mainBody, objectsToSubtract, keepObjects, fuzzValue =
     return difference;
   });
 
-  if (!keepObjects) { sceneShapes = Remove(sceneShapes, mainBody); }
+  if (!keepObjects) { RemoveFromSceneShapes(mainBody); }
   for (let i = 0; i < objectsToSubtract.length; i++) {
-    if (!keepObjects) { sceneShapes = Remove(sceneShapes, objectsToSubtract[i]); }
+    if (!keepObjects) { RemoveFromSceneShapes(objectsToSubtract[i]); }
   }
   sceneShapes.push(curDifference);
   return curDifference;
@@ -520,7 +519,7 @@ function Intersection(objectsToIntersect, keepObjects, fuzzValue, keepEdges) {
   });
 
   for (let i = 0; i < objectsToIntersect.length; i++) {
-    if (!keepObjects) { sceneShapes = Remove(sceneShapes, objectsToIntersect[i]); }
+    if (!keepObjects) { RemoveFromSceneShapes(objectsToIntersect[i]); }
   }
   sceneShapes.push(curIntersection);
   return curIntersection;
@@ -532,7 +531,7 @@ function Extrude(face, direction, keepFace) {
       new oc.gp_Vec(direction[0], direction[1], direction[2])).Shape();
   });
   
-  if (!keepFace) { sceneShapes = Remove(sceneShapes, face); }
+  if (!keepFace) { RemoveFromSceneShapes(face); }
   sceneShapes.push(curExtrusion);
   return curExtrusion;
 }
@@ -544,7 +543,7 @@ function RemoveInternalEdges(shape, keepShape) {
     return fusor.Shape();
   });
   
-  if (!keepShape) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepShape) { RemoveFromSceneShapes(shape); }
   sceneShapes.push(cleanShape);
   return cleanShape;
 }
@@ -575,7 +574,7 @@ function Offset(shape, offsetDistance, tolerance, keepShape) {
     return offsetShape;
   });
   
-  if (!keepShape) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepShape) { RemoveFromSceneShapes(shape); }
   sceneShapes.push(curOffset);
   return curOffset;
 }
@@ -597,7 +596,7 @@ function Revolve(shape, degrees, direction, keepShape, copy) {
     }
   });
   
-  if (!keepShape) { sceneShapes = Remove(sceneShapes, shape); }
+  if (!keepShape) { RemoveFromSceneShapes(shape); }
   sceneShapes.push(curRevolution);
   return curRevolution;
 }
@@ -606,13 +605,13 @@ function RotatedExtrude(wire, height, rotation, keepWire) {
   if (!wire || wire.IsNull()) { console.error("RotatedExtrude received Null Wire!"); }
   let curExtrusion = CacheOp(RotatedExtrude, () => {
     let upperPolygon = Rotate([0, 0, 1], rotation, Translate([0, 0, height], wire, true));
-    sceneShapes = Remove(sceneShapes, upperPolygon);
+    RemoveFromSceneShapes(upperPolygon);
 
     // Define the straight spine going up the middle of the sweep
     let spineWire = BSpline([
       [0, 0, 0],
       [0, 0, height]], false);
-    sceneShapes = Remove(sceneShapes, spineWire); // Don't render these
+    RemoveFromSceneShapes(spineWire); // Don't render these
 
     // Define the guiding helical auxiliary spine (which controls the rotation)
     let steps = 30;
@@ -626,7 +625,7 @@ function RotatedExtrude(wire, height, rotation, keepWire) {
     }
 
     let aspineWire = BSpline(aspinePoints, false);
-    sceneShapes = Remove(sceneShapes, aspineWire); // Don't render these
+    RemoveFromSceneShapes(aspineWire); // Don't render these
 
     // Sweep the face wires along the spine to create the extrusion
     let pipe = new oc.BRepOffsetAPI_MakePipeShell(spineWire);
@@ -637,7 +636,7 @@ function RotatedExtrude(wire, height, rotation, keepWire) {
     pipe.MakeSolid();
     return new oc.TopoDS_Shape(pipe.Shape());
   });
-  if (!keepWire) { sceneShapes = Remove(sceneShapes, wire); }
+  if (!keepWire) { RemoveFromSceneShapes(wire); }
   sceneShapes.push(curExtrusion);
   return curExtrusion;
 }
@@ -654,7 +653,7 @@ function Loft(wires, keepWires) {
   });
 
   wires.forEach((wire) => {
-    if (!keepWires) { sceneShapes = Remove(sceneShapes, wire); }
+    if (!keepWires) { RemoveFromSceneShapes(wire); }
   });
   sceneShapes.push(curLoft);
   return curLoft;
@@ -668,8 +667,8 @@ function Pipe(shape, wirePath, keepInputs) {
   });
   
   if (!keepInputs) {
-    sceneShapes = Remove(sceneShapes, shape);
-    sceneShapes = Remove(sceneShapes, wirePath);
+    RemoveFromSceneShapes(shape);
+    RemoveFromSceneShapes(wirePath);
   }
   sceneShapes.push(curPipe);
   return curPipe;

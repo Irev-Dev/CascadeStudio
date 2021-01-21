@@ -8,7 +8,6 @@ export const workerGlobals = {
   currentOp: "",
   usedHashes: {},
   externalShapes: {},
-  sceneShapes: [],
   GUIState: {},
   currentShape: undefined,
   // ---

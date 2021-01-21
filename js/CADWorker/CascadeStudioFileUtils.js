@@ -1,5 +1,6 @@
 // File Import and Export Utilities
 import { workerGlobals, oc } from "./workerGlobals";
+import { sceneShapes, resetSceneShapes } from './sceneShapesService'
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
 /** This function synchronously loads the "files" in the 
@@ -27,7 +28,7 @@ const loadFileSync = async (file) => {
  * `externalShapes` dictionary and renders them to the viewport. */
 function loadFiles(files) {
   let extFiles = {};
-  workerGlobals.sceneShapes = [];
+  resetSceneShapes();
   for (let i = 0; i < files.length; i++) {
     var lastImportedShape = null;
     loadFileSync(files[i]).then(async (fileText) => {
@@ -40,7 +41,7 @@ function loadFiles(files) {
       extFiles[fileName] = { content: fileText };
     }).then(async () => {
       if (lastImportedShape) {
-        workerGlobals.sceneShapes.push(lastImportedShape);
+        sceneShapes.push(lastImportedShape);
       }
       if (i === files.length - 1) {
         if (lastImportedShape) {

@@ -78,13 +78,6 @@ function recursiveTraverse(x, callback) {
   }
 }
 
-/** This function returns a version of the `inputArray` without the `objectToRemove`. */
-export function Remove(inputArray, objectToRemove) {
-  return inputArray.filter((el) => {
-    return el.hash !== objectToRemove.hash ||
-           el.ptr  !== objectToRemove.ptr;
-  });
-}
 
 /** This function returns true if item is indexable like an array. */
 export function isArrayLike(item) {
