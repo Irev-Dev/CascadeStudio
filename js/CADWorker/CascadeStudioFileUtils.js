@@ -1,5 +1,5 @@
 // File Import and Export Utilities
-import { workerGlobals, oc } from "./workerGlobals";
+import { workerGlobals, oc, messageHandlers } from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from './sceneShapesService'
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
@@ -15,7 +15,7 @@ function loadPrexistingExternalFiles(externalFileDict) {
     }
   }
 }
-workerGlobals.messageHandlers["loadPrexistingExternalFiles"] = loadPrexistingExternalFiles;
+messageHandlers["loadPrexistingExternalFiles"] = loadPrexistingExternalFiles;
 
 /** This function synchronously reads the text contents of a file. */
 const loadFileSync = async (file) => {
@@ -46,7 +46,7 @@ function loadFiles(files) {
       if (i === files.length - 1) {
         if (lastImportedShape) {
           console.log("Imports complete, rendering shapes now...");
-          let response = workerGlobals.messageHandlers["combineAndRenderShapes"]({ maxDeviation: workerGlobals.GUIState['MeshRes'] || 0.1 });
+          let response = messageHandlers["combineAndRenderShapes"]({ maxDeviation: workerGlobals.GUIState['MeshRes'] || 0.1 });
           postMessage({ "type": "combineAndRenderShapes", payload: response });
         }
       }
@@ -56,7 +56,7 @@ function loadFiles(files) {
     });
   };
 }
-workerGlobals.messageHandlers["loadFiles"] = loadFiles;
+messageHandlers["loadFiles"] = loadFiles;
 
 /** This function parses the ASCII contents of a `.STEP` or `.IGES` 
  * File as a Shape into the `externalShapes` dictionary. */
@@ -149,7 +149,7 @@ function saveShapeSTEP (filename = "CascadeStudioPart.step") {
     console.error("TRANSFER TO STEP WRITER FAILED.");
   }
 }
-workerGlobals.messageHandlers["saveShapeSTEP"] = saveShapeSTEP;
+messageHandlers["saveShapeSTEP"] = saveShapeSTEP;
 
 /** Removes the externally imported shapes/files from the project. */ 
-workerGlobals.messageHandlers["clearExternalFiles"] = () => { workerGlobals.externalShapes = {}; };
+messageHandlers["clearExternalFiles"] = () => { workerGlobals.externalShapes = {}; };

@@ -1,5 +1,5 @@
 import "babel-polyfill";
-import { workerGlobals, oc, setOc } from "./workerGlobals";
+import { workerGlobals, oc, setOc, messageHandlers } from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
@@ -99,7 +99,7 @@ initOpenCascade().then(openCascade => {
 
   // Ping Pong Messages Back and Forth based on their registration in messageHandlers
   onmessage = function (e) {
-    let response = workerGlobals.messageHandlers[e.data.type](e.data.payload);
+    let response = messageHandlers[e.data.type](e.data.payload);
     if (response) { postMessage({ "type": e.data.type, payload: response }); };
   }
 
@@ -127,7 +127,7 @@ function Evaluate(payload) {
     workerGlobals.usedHashes = {};
   }
 }
-workerGlobals.messageHandlers["Evaluate"] = Evaluate;
+messageHandlers["Evaluate"] = Evaluate;
 
 /**This function accumulates all the shapes in `sceneShapes` into the `TopoDS_Compound` `currentShape`
  * and converts it to a mesh (and a set of edges) with `ShapeToMesh()`, and sends it off to be rendered. */
@@ -174,4 +174,4 @@ function combineAndRenderShapes(payload) {
   }
   postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": "" } });
 }
-workerGlobals.messageHandlers["combineAndRenderShapes"] = combineAndRenderShapes;
+messageHandlers["combineAndRenderShapes"] = combineAndRenderShapes;
