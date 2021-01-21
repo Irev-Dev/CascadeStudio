@@ -68,6 +68,7 @@ CascadeStudio/
 !static_node_modules/opentype.js/dist/*
 
 # opencascade.js Bin
+!static_node_modules/opencascade.js/index.js
 !static_node_modules/opencascade.js/
 !static_node_modules/opencascade.js/*/
 !static_node_modules/opencascade.js/dist/

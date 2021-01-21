@@ -2,6 +2,7 @@ const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 const config = {
   entry: {
@@ -61,7 +62,23 @@ const config = {
       filename: "index.html",
       template: "index.html"
     }),
-    new MonacoWebpackPlugin()
+    new MonacoWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "js/StandardLibraryIntellisense.ts",
+          to: "js/StandardLibraryIntellisense.ts"
+        },
+        {
+          from: "static_node_modules/opencascade.js/dist/oc.d.ts",
+          to: "opencascade.d.ts"
+        },
+        {
+          from: "node_modules/three/src/Three.d.ts",
+          to: "Three.d.ts"
+        }
+      ]
+    })
   ],
   optimization: {
     runtimeChunk: "single",

@@ -136,29 +136,17 @@ export function initialize(projectContent = null) {
 
             // Import Typescript Intellisense Definitions for the relevant libraries...
             var extraLibs = [];
-            let prefix = window.location.href.startsWith("https://zalo.github.io/") ? "/CascadeStudio" : "";
-            // opencascade.js Typescript Definitions...
-            fetch(prefix + "/static_node_modules/opencascade.js/dist/oc.d.ts").then((response) => {
-                response.text().then(function (text) {
-                    extraLibs.push({ content: text, filePath: 'file://' + prefix + '/static_node_modules/opencascade.js/dist/oc.d.ts' });
-                });
-            }).catch(error => console.log(error.message));
+            const typescriptDefinitionFiles = ["opencascade.d.ts", "Three.d.ts", "js/StandardLibraryIntellisense.ts"]
 
-            // Three.js Typescript definitions...
-            fetch(prefix + "/static_node_modules/three/build/three.d.ts").then((response) => {
-                response.text().then(function (text) {
-                    extraLibs.push({ content: text, filePath: 'file://' + prefix + '/static_node_modules/three/build/three.d.ts' });
-                });
-            }).catch(error => console.log(error.message));
-
-            // CascadeStudio Typescript Definitions...
-            fetch(prefix + "/js/StandardLibraryIntellisense.ts").then((response) => {
-                response.text().then(function (text) {
-                    extraLibs.push({ content: text, filePath: 'file://' + prefix + '/js/StandardLibraryIntellisense.d.ts' });
+            Promise.all(typescriptDefinitionFiles.map(fileLocation => fetch(fileLocation)))
+                .then(async responses => {
+                    const files = await Promise.all(responses.map(response => response.text()))
+                    extraLibs = files.map((file, index) => {
+                        return ({ content: file, filePath: 'file://' + typescriptDefinitionFiles[index] })
+                    })
                     monaco.editor.createModel("", "typescript"); //text
                     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
-                });
-            }).catch(error => console.log(error.message));
+                }).catch(error => console.log(error.message));
 
             // Check for code serialization as an array
             codeContainer = container;

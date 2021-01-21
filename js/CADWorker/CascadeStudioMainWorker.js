@@ -33,7 +33,7 @@ console.error = function (err, url, line, colno, errorObj) {
 
 
 import "../../static_node_modules/three/build/three.min.js";
-import { initOpenCascade } from "opencascade.js";
+import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 import opentype from "opentype.js";
 
 // Preload the Various Fonts that are available via Text3D
