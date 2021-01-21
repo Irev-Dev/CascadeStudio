@@ -72,17 +72,17 @@ console.error = function (err, url, line, colno, errorObj) {
 
 import "../../static_node_modules/three/build/three.min.js";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
-import opentype from "opentype.js";
+import opentype from '../../static_node_modules/opentype.js/dist/opentype.js'
 
 // Preload the Various Fonts that are available via Text3D
-var preloadedFonts = ['../../fonts/Roboto.ttf',
-  '../../fonts/Papyrus.ttf', '../../fonts/Consolas.ttf'];
-var fonts = {};
+var preloadedFonts = ['fonts/Roboto.ttf',
+'fonts/Papyrus.ttf', 'fonts/Consolas.ttf'];
+
 preloadedFonts.forEach((fontURL) => {
-  opentype.load(fontURL, function (err, font) {
+  opentype.load('/' + fontURL, function (err, font, kk) {
     if (err) { console.log(err); }
-    let fontName = fontURL.split("./fonts/")[1].split(".ttf")[0];
-    fonts[fontName] = font;
+    let fontName = fontURL.split("fonts/")[1].split(".ttf")[0];
+    workerGlobals.fonts[fontName] = font;
   });
 });
 

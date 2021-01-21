@@ -133,9 +133,9 @@ export function Text3D(text, size, height, fontName) {
 
   let textArgs = JSON.stringify({ text, size, height, fontName });
   let curText = CacheOp(Text3D, () => {
-    if (fonts[fontName] === undefined) { workerGlobals.argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
+    if (workerGlobals.fonts[fontName] === undefined) { workerGlobals.argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
     let textFaces = [];
-    let commands = fonts[fontName].getPath(text, 0, 0, size).commands;
+    let commands = workerGlobals.fonts[fontName].getPath(text, 0, 0, size).commands;
     for (let idx = 0; idx < commands.length; idx++) {
       if (commands[idx].type === "M") {
         // Start a new Glyph

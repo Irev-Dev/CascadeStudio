@@ -10,6 +10,7 @@ export const workerGlobals = {
   externalShapes: {},
   GUIState: {},
   currentShape: undefined,
+  fonts: {},
   // ---
   fullShapeEdgeHashes: {},
   fullShapeFaceHashes: {},
