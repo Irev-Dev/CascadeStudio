@@ -1,5 +1,4 @@
 import "babel-polyfill";
-import openType from "opentype.js";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 
 import {
@@ -85,25 +84,6 @@ console.error = function (err, url, line, colno, errorObj) {
   
   realConsoleError.apply(console, arguments);
 }; // This is actually accessed via worker.onerror in the main thread
-
-// Preload the Various Fonts that are available via Text3D
-var preloadedFonts = [
-  "fonts/Roboto.ttf",
-  "fonts/Papyrus.ttf",
-  "fonts/Consolas.ttf"
-];
-
-Promise.all(preloadedFonts.map(async fontURL => fetch("/" + fontURL))).then(
-  async responses => {
-    const arrayBuffers = await Promise.all(
-      responses.map(response => response.arrayBuffer())
-    );
-    arrayBuffers.forEach((buffer, index) => {
-      let fontName = preloadedFonts[index].split("fonts/")[1].split(".ttf")[0];
-      workerGlobals.fonts[fontName] = openType.parse(buffer);
-    });
-  }
-);
 
 initOpenCascade().then(openCascade => {
   // Register the "OpenCascade" WebAssembly Module under the shorthand "oc"
