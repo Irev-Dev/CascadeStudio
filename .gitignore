@@ -44,19 +44,6 @@ static_node_modules/**/*
 node_modules/**/*
 CascadeStudio/
 
-# Three.js Build
-!static_node_modules/three/
-!static_node_modules/three/*/
-!static_node_modules/three/build/*
-# Three.js Controls
-!static_node_modules/three/examples/*/
-!static_node_modules/three/examples/js/
-!static_node_modules/three/examples/js/*/
-!static_node_modules/three/examples/js/controls/
-!static_node_modules/three/examples/js/controls/*
-!static_node_modules/three/examples/js/exporters/
-!static_node_modules/three/examples/js/exporters/*
-
 # Raw Inflate and Deflate
 !static_node_modules/rawflate/
 !static_node_modules/rawflate/*
