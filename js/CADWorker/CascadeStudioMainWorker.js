@@ -1,7 +1,9 @@
 import "babel-polyfill";
+import openType from "opentype.js";
+import { initOpenCascade } from "../../static_node_modules/opencascade.js";
+
 import { workerGlobals, oc, setOc, messageHandlers } from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
-
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
 const { ForEachEdge, ForEachFace } = standardLibraryModule;
@@ -68,11 +70,6 @@ console.error = function (err, url, line, colno, errorObj) {
   
   realConsoleError.apply(console, arguments);
 }; // This is actually accessed via worker.onerror in the main thread
-
-
-import "../../static_node_modules/three/build/three.min.js";
-import { initOpenCascade } from "../../static_node_modules/opencascade.js";
-import openType from "opentype.js";
 
 // Preload the Various Fonts that are available via Text3D
 var preloadedFonts = [

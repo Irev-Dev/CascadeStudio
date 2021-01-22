@@ -20,7 +20,6 @@ var offlineFundamentals = [
   "static_node_modules/three/examples/js/controls/TransformControls.js",
   "static_node_modules/three/examples/js/exporters/STLExporter.js",
   "static_node_modules/three/examples/js/exporters/OBJExporter.js",
-  "static_node_modules/opentype.js/dist/opentype.min.js",
   "static_node_modules/rawflate/rawdeflate.js",
   "static_node_modules/rawflate/rawinflate.js",
   "static_node_modules/opencascade.js/dist/opencascade.wasm.js",
