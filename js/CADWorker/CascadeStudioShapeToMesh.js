@@ -1,4 +1,4 @@
-import { oc, setArgCache } from "./workerGlobals";
+import { oc, setArgCache } from "./CascadeStudioWorkerState";
 import { ForEachEdge, ForEachFace } from "./CascadeStudioStandardLibrary.js";
 
 export function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHashes) {

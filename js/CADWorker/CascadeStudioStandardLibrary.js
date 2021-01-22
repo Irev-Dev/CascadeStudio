@@ -20,7 +20,7 @@ import {
   getCallingLocation,
   isArrayLike
 } from "./CascadeStudioStandardUtils.js";
-import { oc, GUIState, setArgCache } from "./workerGlobals";
+import { oc, GUIState, setArgCache } from "./CascadeStudioWorkerState";
 import { sceneShapes, RemoveFromSceneShapes } from "./sceneShapesService";
 import { fonts } from "./CascadeStudioFontLoader";
 

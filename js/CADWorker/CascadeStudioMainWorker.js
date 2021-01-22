@@ -2,7 +2,6 @@ import "babel-polyfill";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 
 import {
-  workerGlobals,
   oc,
   setOc,
   messageHandlers,
@@ -13,9 +12,11 @@ import {
   setOpNumber,
   currentLineNumber,
   argCache,
-  currentOp
-} from "./workerGlobals";
-import * as remainingGlobals from "./workerGlobals";
+  currentOp,
+  usedHashes,
+  setUsedHashes
+} from "./CascadeStudioWorkerState";
+import * as remainingGlobals from "./CascadeStudioWorkerState";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
@@ -114,9 +115,9 @@ function Evaluate(payload) {
     postMessage({ type: "resetWorking" });
     // Clean Cache; remove unused Objects
     for (let hash in argCache) {
-      if (!workerGlobals.usedHashes.hasOwnProperty(hash)) { delete argCache[hash]; }
+      if (!usedHashes.hasOwnProperty(hash)) { delete argCache[hash]; }
     }
-    workerGlobals.usedHashes = {};
+    setUsedHashes({});
   }
 }
 messageHandlers["Evaluate"] = Evaluate;

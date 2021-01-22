@@ -6,7 +6,7 @@ import {
   resetExternalShapes,
   GUIState,
   currentShape
-} from "./workerGlobals";
+} from "./CascadeStudioWorkerState";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 

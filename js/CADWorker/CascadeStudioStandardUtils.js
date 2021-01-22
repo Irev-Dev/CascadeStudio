@@ -1,13 +1,13 @@
 import {
-  workerGlobals,
   oc,
   GUIState,
   opNumber,
   setOpNumber,
   setCurrentLineNumber,
   argCache,
-  setCurrentOp
-} from "./workerGlobals";
+  setCurrentOp,
+  usedHashes
+} from "./CascadeStudioWorkerState";
 // Miscellaneous Helper Functions used in the Standard Library
 
 function getCalleeName(fn) {
@@ -28,7 +28,7 @@ export function CacheOp(callee, cacheMiss) {
   postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
   setOpNumber(opNumber + 1);
   let toReturn = null;
-  let curHash = ComputeHash(callee); workerGlobals.usedHashes[curHash] = curHash;
+  let curHash = ComputeHash(callee); usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
   if (check && GUIState["Cache?"]) {
     //console.log("HIT    "+ ComputeHash(args) +  ", " +ComputeHash(args, true));
