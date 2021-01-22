@@ -1,11 +1,11 @@
 // File Import and Export Utilities
 import {
-  workerGlobals,
   oc,
   messageHandlers,
   externalShapes,
   resetExternalShapes,
-  GUIState
+  GUIState,
+  currentShape
 } from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
@@ -138,7 +138,7 @@ function importSTL(fileName, fileText) {
 function saveShapeSTEP (filename = "CascadeStudioPart.step") {
   let writer = new oc.STEPControl_Writer();
   // Convert to a .STEP File
-  let transferResult = writer.Transfer(workerGlobals.currentShape, 0);
+  let transferResult = writer.Transfer(currentShape, 0);
   if (transferResult === 1) {
     // Write the STEP File to the virtual Emscripten Filesystem Temporarily
     let writeResult = writer.Write(filename);

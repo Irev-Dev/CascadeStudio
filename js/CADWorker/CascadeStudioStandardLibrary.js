@@ -20,7 +20,7 @@ import {
   getCallingLocation,
   isArrayLike
 } from "./CascadeStudioStandardUtils.js";
-import { workerGlobals, oc, GUIState } from "./workerGlobals";
+import { workerGlobals, oc, GUIState, setArgCache } from "./workerGlobals";
 import { sceneShapes, RemoveFromSceneShapes } from "./sceneShapesService";
 
 export function Box(x, y, z, centered) {
@@ -130,7 +130,7 @@ export function Text3D(text, size = 36, height = 0.15, fontName = "Consolas") {
 
   let textArgs = JSON.stringify({ text, size, height, fontName });
   let curText = CacheOp(Text3D, () => {
-    if (workerGlobals.fonts[fontName] === undefined) { workerGlobals.argCache = {}; console.log("Font not loaded or found yet!  Try again..."); return; }
+    if (workerGlobals.fonts[fontName] === undefined) { setArgCache({}); console.log("Font not loaded or found yet!  Try again..."); return; }
     let textFaces = [];
     let commands = workerGlobals.fonts[fontName].getPath(text, 0, 0, size).commands;
     for (let idx = 0; idx < commands.length; idx++) {

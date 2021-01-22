@@ -1,4 +1,4 @@
-import { workerGlobals, oc } from "./workerGlobals";
+import { oc, setArgCache } from "./workerGlobals";
 import { ForEachEdge, ForEachFace } from "./CascadeStudioStandardLibrary.js";
 
 export function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHashes) {
@@ -17,7 +17,7 @@ export function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShape
       ForEachFace(shape, (faceIndex, myFace) => {
         let aLocation = new oc.TopLoc_Location();
         let myT = oc.BRep_Tool.prototype.Triangulation(myFace, aLocation);
-        if (myT.IsNull()) { console.error("Encountered Null Face!"); workerGlobals.argCache = {}; return; }
+        if (myT.IsNull()) { console.error("Encountered Null Face!"); setArgCache({}); return; }
 
         let this_face = {
           vertex_coord: [],

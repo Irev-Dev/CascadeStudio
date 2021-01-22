@@ -7,7 +7,14 @@ import {
   oc,
   setOc,
   messageHandlers,
-  setGUIState
+  setGUIState,
+  currentShape,
+  setCurrentShape,
+  opNumber,
+  setOpNumber,
+  currentLineNumber,
+  argCache,
+  currentOp
 } from "./workerGlobals";
 import * as remainingGlobals from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
@@ -114,20 +121,20 @@ initOpenCascade().then(openCascade => {
 /** This function evaluates `payload.code` (the contents of the Editor Window)
  *  and sets the GUI State. */
 function Evaluate(payload) {
-  workerGlobals.opNumber = 0;
+  setOpNumber(0);
   setGUIState(payload.GUIState);
   try {
     runCode(payload.code);
   } catch (e) {
     setTimeout(() => {
-      e.message = "Line " + workerGlobals.currentLineNumber + ": "  + workerGlobals.currentOp + "() encountered  " + e.message;
+      e.message = "Line " + currentLineNumber + ": "  + currentOp + "() encountered  " + e.message;
       throw e;
     }, 0);
   } finally {
     postMessage({ type: "resetWorking" });
     // Clean Cache; remove unused Objects
-    for (let hash in workerGlobals.argCache) {
-      if (!workerGlobals.usedHashes.hasOwnProperty(hash)) { delete workerGlobals.argCache[hash]; }
+    for (let hash in argCache) {
+      if (!workerGlobals.usedHashes.hasOwnProperty(hash)) { delete argCache[hash]; }
     }
     workerGlobals.usedHashes = {};
   }
@@ -138,11 +145,12 @@ messageHandlers["Evaluate"] = Evaluate;
  * and converts it to a mesh (and a set of edges) with `ShapeToMesh()`, and sends it off to be rendered. */
 function combineAndRenderShapes(payload) {
   // Initialize currentShape as an empty Compound Solid
-  workerGlobals.currentShape     = new oc.TopoDS_Compound();
+  setCurrentShape(new oc.TopoDS_Compound());
   let sceneBuilder = new oc.BRep_Builder();
-  sceneBuilder.MakeCompound(workerGlobals.currentShape);
+  sceneBuilder.MakeCompound(currentShape);
   let fullShapeEdgeHashes = {}; let fullShapeFaceHashes = {};
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "Combining Shapes" } });
+  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": "Combining Shapes" } });
+  setOpNumber(opNumber + 1);
 
   // If there are sceneShapes, iterate through them and add them to currentShape
   if (sceneShapes.length > 0) {
@@ -164,19 +172,20 @@ function combineAndRenderShapes(payload) {
         fullShapeFaceHashes[face.HashCode(100000000)] = index;
       });
 
-      sceneBuilder.Add(workerGlobals.currentShape, sceneShapes[shapeInd]);
+      sceneBuilder.Add(currentShape, sceneShapes[shapeInd]);
     }
 
     // Use ShapeToMesh to output a set of triangulated faces and discretized edges to the 3D Viewport
-    postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": "Triangulating Faces" } });
-    let facesAndEdges = ShapeToMesh(workerGlobals.currentShape,
+    postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": "Triangulating Faces" } });
+    setOpNumber(opNumber + 1);
+    let facesAndEdges = ShapeToMesh(currentShape,
       payload.maxDeviation||0.1, fullShapeEdgeHashes, fullShapeFaceHashes);
     resetSceneShapes();
-    postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": "" } }); // Finish the progress
+    postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": "" } }); // Finish the progress
     return facesAndEdges;
   } else {
     console.error("There were no scene shapes returned!");
   }
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": "" } });
+  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": "" } });
 }
 messageHandlers["combineAndRenderShapes"] = combineAndRenderShapes;

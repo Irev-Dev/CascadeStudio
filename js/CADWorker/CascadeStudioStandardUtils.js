@@ -1,4 +1,13 @@
-import { workerGlobals, oc, GUIState } from "./workerGlobals";
+import {
+  workerGlobals,
+  oc,
+  GUIState,
+  opNumber,
+  setOpNumber,
+  setCurrentLineNumber,
+  argCache,
+  setCurrentOp
+} from "./workerGlobals";
 // Miscellaneous Helper Functions used in the Standard Library
 
 function getCalleeName(fn) {
@@ -14,9 +23,10 @@ function getCalleeName(fn) {
  * added to the cache if `GUIState["Cache?"]` is true. */
 export function CacheOp(callee, cacheMiss) {
   //toReturn = cacheMiss();
-  workerGlobals.currentOp = getCalleeName(callee);
-  workerGlobals.currentLineNumber = getCallingLocation()[0];
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber++, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
+  setCurrentOp(getCalleeName(callee));
+  setCurrentLineNumber(getCallingLocation()[0]);
+  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
+  setOpNumber(opNumber + 1);
   let toReturn = null;
   let curHash = ComputeHash(callee); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
@@ -30,16 +40,16 @@ export function CacheOp(callee, cacheMiss) {
     toReturn.hash = curHash;
     if (GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
   }
-  postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": null } }); // Poor Man's Progress Indicator
+  postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": null } }); // Poor Man's Progress Indicator
   return toReturn;
 }
 /** Returns the cached object if it exists, or null otherwise. */
-function CheckCache(hash) { return workerGlobals.argCache[hash] || null; }
+function CheckCache(hash) { return argCache[hash] || null; }
 /** Adds this `shape` to the cache, indexable by `hash`. */
 function AddToCache(hash, shape) {
   let cacheShape  = new oc.TopoDS_Shape(shape);
   cacheShape.hash = hash; // This is the cached version of the object
-  workerGlobals.argCache[hash]  = cacheShape;
+  argCache[hash]  = cacheShape;
   return hash;
 }
 
