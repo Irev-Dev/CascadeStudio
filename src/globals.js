@@ -10,3 +10,6 @@ export const globalVars = {
 
 export let workerWorking = false;
 export const setWorkerWorking = val => (workerWorking = val);
+
+export let monacoEditor = null;
+export const setMonacoEditor = newEditor => (monacoEditor = newEditor);

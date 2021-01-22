@@ -14,6 +14,8 @@ import {
     globalVars,
     workerWorking,
     setWorkerWorking,
+    monacoEditor,
+    setMonacoEditor,
 } from "../../src/globals";
 import cascadeStudioWorker from '../../src/workerInit';
 
@@ -124,9 +126,9 @@ export function initialize(projectContent = null) {
     myLayout.registerComponent('codeEditor', function (container, state) {
         myLayout.on("initialised", () => {
             // Destroy the existing editor if it exists
-            if (globalVars.monacoEditor) {
+            if (monacoEditor) {
                 monaco.editor.getModels().forEach(model => model.dispose());
-                globalVars.monacoEditor = null;
+                setMonacoEditor(null);
             }
 
             // Set the Monaco Language Options
@@ -163,7 +165,7 @@ export function initialize(projectContent = null) {
             }
 
             // Initialize the Monaco Code Editor inside this dockable container
-            globalVars.monacoEditor = monaco.editor.create(container.getElement().get(0), {
+            const newMonacoEditor = monaco.editor.create(container.getElement().get(0), {
                 value: state.code,
                 language: "typescript",
                 theme: "vs-dark",
@@ -171,6 +173,7 @@ export function initialize(projectContent = null) {
                 minimap: { enabled: false }//,
                 //model: null
             });
+            setMonacoEditor(newMonacoEditor);
 
             // Collapse all Functions in the Editor to suppress library clutter -----------------
             let codeLines = state.code.split(/\r\n|\r|\n/);
@@ -184,7 +187,7 @@ export function initialize(projectContent = null) {
                     curCollapse = null;
                 }
             }
-            let mergedViewState = Object.assign(globalVars.monacoEditor.saveViewState(), {
+            let mergedViewState = Object.assign(monacoEditor.saveViewState(), {
                 "contributionsState": {
                     "editor.contrib.folding": {
                         "collapsedRegions": collapsed, 
@@ -194,12 +197,12 @@ export function initialize(projectContent = null) {
                     "editor.contrib.wordHighlighter": false 
                 }
             });
-            globalVars.monacoEditor.restoreViewState(mergedViewState);
+            monacoEditor.restoreViewState(mergedViewState);
             // End Collapsing All Functions -----------------------------------------------------
             
             /** This function triggers the evaluation of the editor code 
              *  inside the CAD Worker thread.*/
-            globalVars.monacoEditor.evaluateCode = (saveToURL = false) => {
+            monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
                 if (workerWorking) { return; }
                 
@@ -211,17 +214,17 @@ export function initialize(projectContent = null) {
                 monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
 
                 // Retrieve the code from the editor window as a string
-                let newCode = globalVars.monacoEditor.getValue();
+                let newCode = monacoEditor.getValue();
 
                 // Clear Inline Monaco Editor Error Highlights
-                monaco.editor.setModelMarkers(globalVars.monacoEditor.getModel(), 'test', []);
+                monaco.editor.setModelMarkers(monacoEditor.getModel(), 'test', []);
 
                 // Refresh the GUI Panel
                 if (gui) {
                     gui.clearPanels();
 
                     guiPanel = gui.addPanel({ label: 'Cascade Control Panel' })
-                        .addButton('Evaluate', () => { globalVars.monacoEditor.evaluateCode(true); });
+                        .addButton('Evaluate', () => { monacoEditor.evaluateCode(true); });
                     messageHandlers["addSlider"]({ name: "MeshRes", default: 0.1, min: 0.01, max: 2 });
                     messageHandlers["addCheckbox"]({ name: "Cache?", default: true });
                 }
@@ -275,14 +278,14 @@ export function initialize(projectContent = null) {
                 // Force the F5 Key to refresh the model instead of refreshing the page
                 if ((e.which || e.keyCode) == 116) {
                     e.preventDefault();
-                    globalVars.monacoEditor.evaluateCode(true);
+                    monacoEditor.evaluateCode(true);
                     return false;
                 }
                 // Save the project on Ctrl+S
                 if (String.fromCharCode(e.keyCode).toLowerCase() === 's' && (e.ctrlKey || e.metaKey)) {
                     e.preventDefault();
                     saveProject();
-                    globalVars.monacoEditor.evaluateCode(true);
+                    monacoEditor.evaluateCode(true);
                 }
                 return true;
             };
@@ -291,7 +294,7 @@ export function initialize(projectContent = null) {
                 if (!file.handle || e.which === 0) {
                     return true;
                 }
-                if (file.content == globalVars.monacoEditor.getValue()) {
+                if (file.content == monacoEditor.getValue()) {
                     codeContainer.setTitle(file.handle.name);
                 } else {
                     codeContainer.setTitle('* ' + file.handle.name);
@@ -398,7 +401,7 @@ export function initialize(projectContent = null) {
 
                 // Highlight the error'd code in the editor
                 if (!errorObj || !(errorObj.stack.includes("wasm-function"))) {
-                    monaco.editor.setModelMarkers(globalVars.monacoEditor.getModel(), 'test', [{
+                    monaco.editor.setModelMarkers(monacoEditor.getModel(), 'test', [{
                         startLineNumber: line,
                         startColumn: colno,
                         endLineNumber: line,
@@ -452,7 +455,7 @@ export function initialize(projectContent = null) {
                 });
             }
 
-            globalVars.monacoEditor.evaluateCode();
+            monacoEditor.evaluateCode();
         }
         // Call the startup if we're ready when the wasm is ready
         if (!stuntedInitialization) { startup(); }
@@ -466,18 +469,18 @@ export function initialize(projectContent = null) {
         if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default; }
         GUIState[payload.name + "Range"] = [payload.min, payload.max];
         guiPanel.addSlider(GUIState, payload.name, payload.name + 'Range', {
-            onFinish: () => { globalVars.monacoEditor.evaluateCode(); },
-            onChange: () => { if (payload.realTime) { globalVars.monacoEditor.evaluateCode(); } },
+            onFinish: () => { monacoEditor.evaluateCode(); },
+            onChange: () => { if (payload.realTime) { monacoEditor.evaluateCode(); } },
             step: payload.step,
             dp: payload.dp
         });
     }
     messageHandlers["addButton"] = (payload) => {
-        guiPanel.addButton(payload.name, () => { globalVars.monacoEditor.evaluateCode(); });
+        guiPanel.addButton(payload.name, () => { monacoEditor.evaluateCode(); });
     }
     messageHandlers["addCheckbox"] = (payload) => {
         if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default; }
-        guiPanel.addCheckbox(GUIState, payload.name, { onChange: () => { globalVars.monacoEditor.evaluateCode() } });
+        guiPanel.addCheckbox(GUIState, payload.name, { onChange: () => { monacoEditor.evaluateCode() } });
     }
     messageHandlers["resetWorking"] = () => setWorkerWorking(false)
 }
@@ -512,7 +515,7 @@ export async function writeFile(fileHandle, contents) {
 /** This function serializes the Project's current state 
  * into a `.json` file and saves it to the selected location. */
 export async function saveProject() {
-    let currentCode = globalVars.monacoEditor.getValue();
+    let currentCode = monacoEditor.getValue();
     if (!file.handle) {
         file.handle = await getNewFileHandle(
             "Cascade Studio project files",
@@ -544,7 +547,7 @@ export const loadProject = async () => {
     window.history.replaceState({}, 'Cascade Studio','?');
     new initialize(jsonContent);
     codeContainer.setTitle(file.handle.name);
-    file.content = globalVars.monacoEditor.getValue();
+    file.content = monacoEditor.getValue();
 }
 
 /** This function triggers the CAD WebWorker to 
