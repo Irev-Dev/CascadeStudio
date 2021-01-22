@@ -1,5 +1,11 @@
 // File Import and Export Utilities
-import { workerGlobals, oc, messageHandlers } from "./workerGlobals";
+import {
+  workerGlobals,
+  oc,
+  messageHandlers,
+  externalShapes,
+  resetExternalShapes
+} from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from './sceneShapesService'
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
@@ -79,14 +85,14 @@ function importSTEPorIGES(fileName, fileText) {
     let stepShape           = reader.OneShape();         // Obtain the results of translation in one OCCT shape
     
     // Add to the externalShapes dictionary
-    workerGlobals.externalShapes[fileName] = new oc.TopoDS_Shape(stepShape);
-    workerGlobals.externalShapes[fileName].hash = stringToHash(fileName);
+    externalShapes[fileName] = new oc.TopoDS_Shape(stepShape);
+    externalShapes[fileName].hash = stringToHash(fileName);
     console.log("Shape Import complete! Use sceneShapes.push(externalShapes['"+fileName+"']); to add it to the scene!");
     
     // Remove the file when we're done (otherwise we run into errors on reupload)
     oc.FS.unlink("/" + fileName);
     
-    return workerGlobals.externalShapes[fileName];
+    return externalShapes[fileName];
   } else {
     console.error("Something in OCCT went wrong trying to read " + fileName);
     return null;
@@ -111,14 +117,14 @@ function importSTL(fileName, fileText) {
     solidSTL.Add(new oc.TopoDS_Shape(readShape));
 
     // Add to the externalShapes dictionary
-    workerGlobals.externalShapes[fileName] = new oc.TopoDS_Shape(solidSTL.Solid());
-    workerGlobals.externalShapes[fileName].hash = stringToHash(fileName);
+    externalShapes[fileName] = new oc.TopoDS_Shape(solidSTL.Solid());
+    externalShapes[fileName].hash = stringToHash(fileName);
     console.log("Shape Import complete! Use sceneShapes.push(externalShapes['" + fileName + "']); to see it!");
     
     // Remove the file when we're done (otherwise we run into errors on reupload)
     oc.FS.unlink("/" + fileName);
     
-    return workerGlobals.externalShapes[fileName];
+    return externalShapes[fileName];
   } else {
     console.log("Something in OCCT went wrong trying to read " + fileName + ".  \n" +
       "Cascade Studio only imports small ASCII stl files for now!");
@@ -152,4 +158,4 @@ function saveShapeSTEP (filename = "CascadeStudioPart.step") {
 messageHandlers["saveShapeSTEP"] = saveShapeSTEP;
 
 /** Removes the externally imported shapes/files from the project. */ 
-messageHandlers["clearExternalFiles"] = () => { workerGlobals.externalShapes = {}; };
+messageHandlers["clearExternalFiles"] = resetExternalShapes;

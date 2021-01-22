@@ -3,6 +3,7 @@ import openType from "opentype.js";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 
 import { workerGlobals, oc, setOc, messageHandlers } from "./workerGlobals";
+import * as remainingGlobals from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
@@ -12,6 +13,7 @@ const { ForEachEdge, ForEachFace } = standardLibraryModule;
 
 const runCode = code => {
   // making the following functions available to eval
+  const { externalShapes } = remainingGlobals;
   const {
     BSpline,
     Box,
