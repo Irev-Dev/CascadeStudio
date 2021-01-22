@@ -17,7 +17,10 @@ import {
   setUsedHashes
 } from "./CascadeStudioWorkerState";
 import * as remainingGlobals from "./CascadeStudioWorkerState";
-import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
+import {
+  sceneShapes,
+  resetSceneShapes
+} from "./CascadeStudioSceneShapesService";
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
 import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
 const { ForEachEdge, ForEachFace } = standardLibraryModule;
@@ -115,8 +118,7 @@ function Evaluate(payload) {
     postMessage({ type: "resetWorking" });
     // Clean Cache; remove unused Objects
     for (let hash in argCache) {
-      if (!usedHashes.hasOwnProperty(hash)) { delete argCache[hash]; }
-    }
+      if (!usedHashes.hasOwnProperty(hash)) { delete argCache[hash]; } }
     setUsedHashes({});
   }
 }

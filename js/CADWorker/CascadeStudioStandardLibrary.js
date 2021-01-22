@@ -21,7 +21,10 @@ import {
   isArrayLike
 } from "./CascadeStudioStandardUtils.js";
 import { oc, GUIState, setArgCache } from "./CascadeStudioWorkerState";
-import { sceneShapes, RemoveFromSceneShapes } from "./sceneShapesService";
+import {
+  sceneShapes,
+  RemoveFromSceneShapes
+} from "./CascadeStudioSceneShapesService";
 import { fonts } from "./CascadeStudioFontLoader";
 
 export function Box(x, y, z, centered) {
@@ -465,15 +468,14 @@ export function Difference(mainBody, objectsToSubtract, keepObjects, fuzzValue =
       for (let i = 0; i < objectsToSubtract.length; i++) {
         if (!objectsToSubtract[i] || objectsToSubtract[i].IsNull()) { console.error("Tool in Difference is null!"); }
         let differenceCut = new oc.BRepAlgoAPI_Cut(difference, objectsToSubtract[i]);
-        differenceCut.SetFuzzyValue && differenceCut.SetFuzzyValue(fuzzValue);
+        differenceCut.SetFuzzyValue(fuzzValue);
         differenceCut.Build();
         difference = differenceCut.Shape();
       }
     }
     
     if (!keepEdges) {
-      let fusor = new oc.ShapeUpgrade_UnifySameDomain(difference);
-      fusor.Build();
+      let fusor = new oc.ShapeUpgrade_UnifySameDomain(difference); fusor.Build();
       difference = fusor.Shape();
     }
 

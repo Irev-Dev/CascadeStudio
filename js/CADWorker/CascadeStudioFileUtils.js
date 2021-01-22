@@ -7,7 +7,10 @@ import {
   GUIState,
   currentShape
 } from "./CascadeStudioWorkerState";
-import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
+import {
+  sceneShapes,
+  resetSceneShapes
+} from "./CascadeStudioSceneShapesService";
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
 /** This function synchronously loads the "files" in the 
