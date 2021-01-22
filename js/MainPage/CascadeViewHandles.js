@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { messageHandlers, globalVars, monacoEditor } from "../../src/globals";
+import { messageHandlers, monacoEditor } from "./CascadeState";
 
 // This file handles Transformation Gizmos
 

@@ -1,6 +1,5 @@
-import "./styles.css";
-import "../css/main.css";
-import { initialize } from "../js/MainPage/CascadeMain";
+import "../../css/main.css";
+import { initialize } from "./CascadeMain";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js").then(

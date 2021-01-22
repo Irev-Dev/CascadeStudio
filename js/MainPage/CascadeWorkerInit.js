@@ -1,5 +1,5 @@
-import { messageHandlers } from "./globals";
-import Worker from "worker-loader!../js/CADWorker/CascadeStudioMainWorker.js";
+import { messageHandlers } from "./CascadeState";
+import Worker from "worker-loader!../CADWorker/CascadeStudioMainWorker.js";
 
 // Begins loading the CAD Kernel Web Worker
 let cascadeStudioWorker;

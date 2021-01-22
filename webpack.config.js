@@ -6,7 +6,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const config = {
   entry: {
-    main: ["babel-polyfill", "./src/index.js"],
+    main: ["babel-polyfill", "./js/MainPage/index.js"],
     workerLibrary: "./js/CADWorker/CascadeStudioStandardLibrary.js"
   },
   output: {

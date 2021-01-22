@@ -11,13 +11,14 @@ import '../../static_node_modules/rawflate/rawinflate'
 
 import {
     messageHandlers,
-    globalVars,
     workerWorking,
     setWorkerWorking,
     monacoEditor,
     setMonacoEditor,
-} from "../../src/globals";
-import cascadeStudioWorker from '../../src/workerInit';
+    threejsViewport,
+    setThreejsViewport,
+} from "./CascadeState";
+import cascadeStudioWorker from './CascadeWorkerInit';
 
 
 
@@ -205,7 +206,7 @@ export function initialize(projectContent = null) {
             monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
                 if (workerWorking) { return; }
-                
+
                 // Set the "workerWorking" flag, so we don't submit 
                 // multiple jobs to the worker thread simultaneously
                 setWorkerWorking(true);
@@ -230,7 +231,7 @@ export function initialize(projectContent = null) {
                 }
 
                 // Remove any existing Transform Handles that could be laying around
-                globalVars.threejsViewport.clearTransformHandles();
+                threejsViewport.clearTransformHandles();
 
                 // Set up receiving files from the worker thread
                 // This lets users download arbitrary information 
@@ -310,9 +311,9 @@ export function initialize(projectContent = null) {
         container.setState(GUIState);
         myLayout.on("initialised", () => {
             // Destroy the existing editor if it exists
-            if (globalVars.threejsViewport) {
-                globalVars.threejsViewport.active = false;
-                globalVars.threejsViewport = null;
+            if (threejsViewport) {
+                threejsViewport.active = false;
+                setThreejsViewport(null)
             }
 
             let floatingGUIContainer = document.createElement("div");
@@ -336,7 +337,7 @@ export function initialize(projectContent = null) {
                 }.bind(gui);
             }
                 
-            globalVars.threejsViewport = new CascadeEnvironment(container);
+            setThreejsViewport(new CascadeEnvironment(container));
         });
     });
 

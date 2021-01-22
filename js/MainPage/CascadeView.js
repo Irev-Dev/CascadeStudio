@@ -5,10 +5,10 @@ import { initializeHandleGizmos } from "./CascadeViewHandles";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {
   messageHandlers,
-  globalVars,
-  setWorkerWorking
-} from "../../src/globals";
-import cascadeStudioWorker from "../../src/workerInit";
+  setWorkerWorking,
+  threejsViewport
+} from "./CascadeState";
+import cascadeStudioWorker from "./CascadeWorkerInit";
 import {
   getNewFileHandle,
   writeFile,
@@ -25,13 +25,13 @@ import {
 
 function setupIdeButtonListeners() {
   document.getElementById("save-step").addEventListener("click", () => {
-    globalVars.threejsViewport.saveShapeSTEP();
+    threejsViewport.saveShapeSTEP();
   });
   document.getElementById("save-stl").addEventListener("click", () => {
-    globalVars.threejsViewport.saveShapeSTL();
+    threejsViewport.saveShapeSTL();
   });
   document.getElementById("save-obj").addEventListener("click", () => {
-    globalVars.threejsViewport.saveShapeOBJ();
+    threejsViewport.saveShapeOBJ();
   });
   document.getElementById("load-project").addEventListener("click", () => {
     loadProject();
