@@ -20,8 +20,8 @@ import {
   getCallingLocation,
   isArrayLike
 } from "./CascadeStudioStandardUtils.js";
-import { workerGlobals, oc } from "./workerGlobals";
-import { sceneShapes, RemoveFromSceneShapes } from './sceneShapesService'
+import { workerGlobals, oc, GUIState } from "./workerGlobals";
+import { sceneShapes, RemoveFromSceneShapes } from "./sceneShapesService";
 
 export function Box(x, y, z, centered) {
   if (!centered) { centered = false;}
@@ -887,15 +887,15 @@ function SaveFile(filename, fileURL) {
 }
 
 export function Slider(name = "Val", defaultValue = 0.5, min = 0.0, max = 1.0, realTime=false, step, precision) {
-  if (!(name in workerGlobals.GUIState)) { workerGlobals.GUIState[name] = defaultValue; }
+  if (!(name in GUIState)) { GUIState[name] = defaultValue; }
   if (!step) { step = 0.01; }
   if (typeof precision === "undefined") {
     precision = 2;
   } else if (precision % 1) { console.error("Slider precision must be an integer"); }
   
-  workerGlobals.GUIState[name + "Range"] = [min, max];
+  GUIState[name + "Range"] = [min, max];
   postMessage({ "type": "addSlider", payload: { name: name, default: defaultValue, min: min, max: max, realTime: realTime, step: step, dp: precision } });
-  return workerGlobals.GUIState[name];
+  return GUIState[name];
 }
 
 export function Button(name = "Action") {
@@ -903,7 +903,7 @@ export function Button(name = "Action") {
 }
 
 export function Checkbox(name = "Toggle", defaultValue = false) {
-  if (!(name in workerGlobals.GUIState)) { workerGlobals.GUIState[name] = defaultValue; }
+  if (!(name in GUIState)) { GUIState[name] = defaultValue; }
   postMessage({ "type": "addCheckbox", payload: { name: name, default: defaultValue } });
-  return workerGlobals.GUIState[name];
+  return GUIState[name];
 }

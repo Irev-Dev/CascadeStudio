@@ -1,4 +1,4 @@
-import { workerGlobals, oc } from "./workerGlobals";
+import { workerGlobals, oc, GUIState } from "./workerGlobals";
 // Miscellaneous Helper Functions used in the Standard Library
 
 function getCalleeName(fn) {
@@ -20,7 +20,7 @@ export function CacheOp(callee, cacheMiss) {
   let toReturn = null;
   let curHash = ComputeHash(callee); workerGlobals.usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
-  if (check && workerGlobals.GUIState["Cache?"]) {
+  if (check && GUIState["Cache?"]) {
     //console.log("HIT    "+ ComputeHash(args) +  ", " +ComputeHash(args, true));
     toReturn = new oc.TopoDS_Shape(check);
     toReturn.hash = check.hash;
@@ -28,7 +28,7 @@ export function CacheOp(callee, cacheMiss) {
     //console.log("MISSED " + ComputeHash(args) + ", " + ComputeHash(args, true));
     toReturn = cacheMiss();
     toReturn.hash = curHash;
-    if (workerGlobals.GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
+    if (GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
   }
   postMessage({ "type": "Progress", "payload": { "opNumber": workerGlobals.opNumber, "opType": null } }); // Poor Man's Progress Indicator
   return toReturn;

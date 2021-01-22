@@ -4,7 +4,6 @@ export const workerGlobals = {
   argCache: {},
   currentOp: "",
   usedHashes: {},
-  GUIState: {},
   currentShape: undefined,
   fonts: {},
   // ---
@@ -19,3 +18,6 @@ export const messageHandlers = {};
 
 export let externalShapes = {};
 export const resetExternalShapes = () => (externalShapes = {});
+
+export let GUIState = {};
+export const setGUIState = val => (GUIState = val);

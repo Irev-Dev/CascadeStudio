@@ -4,9 +4,10 @@ import {
   oc,
   messageHandlers,
   externalShapes,
-  resetExternalShapes
+  resetExternalShapes,
+  GUIState
 } from "./workerGlobals";
-import { sceneShapes, resetSceneShapes } from './sceneShapesService'
+import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { stringToHash } from "./CascadeStudioStandardUtils.js";
 
 /** This function synchronously loads the "files" in the 
@@ -52,7 +53,7 @@ function loadFiles(files) {
       if (i === files.length - 1) {
         if (lastImportedShape) {
           console.log("Imports complete, rendering shapes now...");
-          let response = messageHandlers["combineAndRenderShapes"]({ maxDeviation: workerGlobals.GUIState['MeshRes'] || 0.1 });
+          let response = messageHandlers["combineAndRenderShapes"]({ maxDeviation: GUIState['MeshRes'] || 0.1 });
           postMessage({ "type": "combineAndRenderShapes", payload: response });
         }
       }

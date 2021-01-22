@@ -2,7 +2,13 @@ import "babel-polyfill";
 import openType from "opentype.js";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 
-import { workerGlobals, oc, setOc, messageHandlers } from "./workerGlobals";
+import {
+  workerGlobals,
+  oc,
+  setOc,
+  messageHandlers,
+  setGUIState
+} from "./workerGlobals";
 import * as remainingGlobals from "./workerGlobals";
 import { sceneShapes, resetSceneShapes } from "./sceneShapesService";
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
@@ -109,7 +115,7 @@ initOpenCascade().then(openCascade => {
  *  and sets the GUI State. */
 function Evaluate(payload) {
   workerGlobals.opNumber = 0;
-  workerGlobals.GUIState = payload.GUIState;
+  setGUIState(payload.GUIState);
   try {
     runCode(payload.code);
   } catch (e) {

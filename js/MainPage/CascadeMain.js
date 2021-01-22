@@ -208,7 +208,7 @@ export function initialize(projectContent = null) {
                 
                 // Set the "workerWorking" flag, so we don't submit 
                 // multiple jobs to the worker thread simultaneously
-                setWorkerWorking(true)
+                setWorkerWorking(true);
 
                 // Refresh these every so often to ensure we're always getting intellisense
                 monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
@@ -383,7 +383,7 @@ export function initialize(projectContent = null) {
             // Call this console.log when triggered from the WASM
             messageHandlers["log"  ] = (payload) => { console.log(payload); };
             messageHandlers["error"] = (payload) => { 
-                setWorkerWorking(false)
+                setWorkerWorking(false);
                 console.error(payload); 
             };
 
