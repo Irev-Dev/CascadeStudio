@@ -80,7 +80,14 @@ Cascade Studio is maintained by [Johnathon Selstad @zalo](https://github.com/zal
 
 ## Building and running on localhost
 
-First install dependencies:
+Quick start:
+```sh
+yarn install
+yarn dev
+```
+
+
+Install dependencies:
 
 ```sh
 yarn install
