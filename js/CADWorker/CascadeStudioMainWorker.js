@@ -1,4 +1,3 @@
-import "babel-polyfill";
 import { initOpenCascade } from "../../static_node_modules/opencascade.js";
 
 import {

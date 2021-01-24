@@ -31,6 +31,8 @@ var myLayout,
     guiPanel, GUIState, count = 0, //focused = true,
     startup, file = {}, realConsoleLog;
 
+let hasCalledCadhubOnInit = false
+
 let starterCode = 
 `// Welcome to Cascade Studio!   Here are some useful functions:
 //  Translate(), Rotate(), Scale(), Union(), Difference(), Intersection()
@@ -52,12 +54,12 @@ Translate([-25, 0, 40], Text3D("Hi!"));
 
 // Don't forget to push imported or oc-defined shapes into sceneShapes to add them to the workspace!`;
 
-export function initialize(projectContent = null) {
-    this.searchParams = new URLSearchParams(window.location.search);
+export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
+    const projectContent = false
 
     // Load the initial Project from - "projectContent", the URL, or the Gallery
-    let loadFromURL     = this.searchParams.has("code");
-    let loadfromGallery = this.searchParams.has("project");
+    let loadFromURL     = null // this.searchParams.has("code");
+    let loadfromGallery = null // this.searchParams.has("project");
 
     // Set up the Windowing/Docking/Layout System  ---------------------------------------
     let stuntedInitialization = loadfromGallery && !galleryProject;
@@ -73,7 +75,7 @@ export function initialize(projectContent = null) {
 
     // Else load a project from the URL or create a new one from scratch
     } else {
-        let codeStr = starterCode;
+        let codeStr = initCode ? initCode : starterCode;
         GUIState = {};
         if (loadFromURL) {
             codeStr  = decode(this.searchParams.get("code"));
@@ -119,7 +121,7 @@ export function initialize(projectContent = null) {
                 showMaximiseIcon: false,
                 showCloseIcon: false
             }
-        });
+        }, document.getElementById( 'cascade-container'));
 
     }
 
@@ -216,6 +218,7 @@ export function initialize(projectContent = null) {
 
                 // Retrieve the code from the editor window as a string
                 let newCode = monacoEditor.getValue();
+                codeUpdateCallback(newCode)
 
                 // Clear Inline Monaco Editor Error Highlights
                 monaco.editor.setModelMarkers(monacoEditor.getModel(), 'test', []);
@@ -265,7 +268,7 @@ export function initialize(projectContent = null) {
 
                 // Determine whether to save the code + gui (no external files) 
                 // to the URL depending on the current mode of the editor.
-                if (!loadfromGallery && saveToURL) {
+                if (false) { // disable will small diff (to help with conflicts later)
                     console.log("Saved to URL!"); //Generation Complete! 
                     window.history.replaceState({}, 'Cascade Studio',
                         "?code=" + encode(newCode) + "&gui=" + encode(JSON.stringify(GUIState)));
@@ -273,6 +276,10 @@ export function initialize(projectContent = null) {
 
                 // Print a friendly message (to which we'll append progress updates)
                 console.log("Generating Model");
+                if (!hasCalledCadhubOnInit) {
+                  onInit()
+                  hasCalledCadhubOnInit = true
+                }
             };
 
             document.onkeydown = function (e) {
@@ -433,15 +440,16 @@ export function initialize(projectContent = null) {
     //document.onblur = window.onblur; document.onfocus = window.onfocus;
 
     // Resize the layout when the browser resizes
-    window.onorientationchange = function (event) {
-        myLayout.updateSize(window.innerWidth, window.innerHeight -
-            document.getElementsByClassName('topnav')[0].offsetHeight);
+    const getIdeHeight = () => window.innerHeight - 320 - 44 - 200
+    const onResize = () => {
+      myLayout.updateSize(window.innerWidth, getIdeHeight());
     };
+    window.onorientationchange = onResize
+    window.onresize = onResize
 
     // Initialize the Layout
     myLayout.init();
-    myLayout.updateSize(window.innerWidth, window.innerHeight -
-        document.getElementById('topnav').offsetHeight);
+    myLayout.updateSize(window.innerWidth, getIdeHeight());
 
     // If the Main Page loads before the CAD Worker, register a 
     // callback to start the model evaluation when the CAD is ready.

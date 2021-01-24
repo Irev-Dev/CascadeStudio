@@ -48,7 +48,7 @@ function setupIdeButtonListeners() {
       clearExternalFiles();
     });
 }
-setupIdeButtonListeners();
+// setupIdeButtonListeners(); // disable the above, cadhub doesn't have these buttons
 
 var Environment = function (goldenContainer) {
   this.goldenContainer = goldenContainer;
@@ -136,10 +136,12 @@ var Environment = function (goldenContainer) {
     this.goldenContainer.layoutManager.eventHub.emit('Start');
   }
 
+  const getIdeHeight = () => document.getElementsByClassName('cadhub-main-header')[0] ? window.innerHeight - document.getElementsByClassName('cadhub-main-header')[0].offsetHeight-
+  document.getElementsByClassName('cadhub-ide-toolbar')[0].offsetHeight : window.innerHeight - 96
+
   // Resize the container, canvas, and renderer when the window resizes
   this.onWindowResize = function () {
-      this.goldenContainer.layoutManager.updateSize(window.innerWidth, window.innerHeight -
-        document.getElementsByClassName('topnav')[0].offsetHeight);
+      this.goldenContainer.layoutManager.updateSize(window.innerWidth, getIdeHeight());
       this.camera.aspect  = this.goldenContainer.width / this.goldenContainer.height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(this.goldenContainer.width, this.goldenContainer.height);
