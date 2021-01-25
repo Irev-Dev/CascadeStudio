@@ -15,7 +15,7 @@ import {
   currentOp,
   usedHashes,
   setUsedHashes,
-  resetExternalShapes
+  resetExternalShapes,
 } from "./CascadeStudioWorkerState";
 import * as remainingGlobals from "./CascadeStudioWorkerState";
 import {
@@ -75,7 +75,8 @@ const runCode = code => {
     Text3D,
     Transform,
     Translate,
-    Union
+    Union,
+    ExtrudeSVGPath
   } = standardLibraryModule;
   eval(code);
 };

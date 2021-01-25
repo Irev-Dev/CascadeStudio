@@ -79,6 +79,8 @@ function BSpline(points:number[][], closed?:boolean) : oc.TopoDS_Shape;
  * @example```let myText = Text3D("Hello!");```*/
 function Text3D(text?: string = "Hi!", size?: number = "36", height?: number = 0.15, fontURL?: string = "Consolas") : oc.TopoDS_Shape;
 
+function ExtrudeSVGPath(svgPath: string, height: number) : oc.TopoDS_Shape;
+
 
 /** Joins a list of shapes into a single solid.
  * The original shapes are removed unless `keepObjects` is true.
