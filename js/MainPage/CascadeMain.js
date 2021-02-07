@@ -478,10 +478,8 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
         if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default; }
         GUIState[payload.name + "Range"] = [payload.min, payload.max];
         guiPanel.addSlider(GUIState, payload.name, payload.name + 'Range', {
-            onFinish: () => { monacoEditor.evaluateCode(); },
-            onChange: () => { if (payload.realTime) { monacoEditor.evaluateCode(); } },
-            step: payload.step,
-            dp: payload.dp
+            onFinish: () => { if (payload.realTime) { monacoEditor.evaluateCode(); } },
+            step: payload.step, dp: payload.dp
         });
     }
     messageHandlers["addButton"] = (payload) => {
