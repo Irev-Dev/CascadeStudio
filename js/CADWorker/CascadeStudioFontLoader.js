@@ -6,7 +6,8 @@ export const fonts = {};
 var preloadedFonts = [
   "fonts/Roboto.ttf",
   "fonts/Papyrus.ttf",
-  "fonts/Consolas.ttf"
+  "fonts/Consolas.ttf",
+  "fonts/OCR-A.ttf"
 ];
 
 Promise.all(preloadedFonts.map(async fontURL => fetch("/" + fontURL))).then(
