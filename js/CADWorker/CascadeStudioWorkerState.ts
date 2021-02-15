@@ -1,10 +1,15 @@
+import OC from "../../static_node_modules/opencascade.js/dist/oc";
+
 export const messageHandlers = {};
 
 export let argCache = {};
 export let currentLineNumber = 0;
 export let currentOp = "";
 export let currentShape;
-export let externalShapes = {};
+
+/** The dictionary that stores all of your imported STEP and IGES files.  Push to sceneShapes to render in the view!
+ * @example```sceneShapes.push(externalShapes['myStep.step']);``` */
+export let externalShapes: { [filename: string]: OC.TopoDS_Shape } = {};
 export let GUIState = {};
 export let oc = null;
 export let opNumber = 0; // This keeps track of the progress of the evaluation
@@ -19,7 +24,6 @@ export const setGUIState = val => (GUIState = val);
 export const setOc = ocInit => (oc = ocInit);
 export const setOpNumber = val => (opNumber = val);
 export const setUsedHashes = val => (usedHashes = val);
-
 
 // I can't see anywhere, where the following globals are used, variables with these names exist, but they are scoped.
 let fullShapeEdgeHashes = {};

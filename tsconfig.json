@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": false,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": false,
+    "moduleResolution": "node"
+  },
+  "declaration": true,
+  "include": ["./static_node_modules/opencascade.js/dist/oc.d.ts"]
+}

@@ -1,5 +1,5 @@
-import { oc, setArgCache } from "./CascadeStudioWorkerState";
-import { ForEachEdge, ForEachFace } from "./CascadeStudioStandardLibrary.js";
+import { oc, setArgCache } from "./CascadeStudioWorkerState.ts";
+import { ForEachEdge, ForEachFace } from "./CascadeStudioStandardLibrary.ts";
 
 export function ShapeToMesh (shape, maxDeviation, fullShapeEdgeHashes, fullShapeFaceHashes) {
     let facelist = [], edgeList = [];

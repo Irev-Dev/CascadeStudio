@@ -10,7 +10,7 @@ import {
   sceneShapes,
   resetSceneShapes
 } from "./CascadeStudioSceneShapesService";
-import { stringToHash } from "./CascadeStudioStandardUtils.js";
+import { stringToHash } from "./CascadeStudioStandardUtils";
 
 /** This function synchronously loads the "files" in the 
  * current project into the `externalFiles` dictionary upon startup.*/
