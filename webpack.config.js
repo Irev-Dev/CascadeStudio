@@ -14,8 +14,16 @@ const config = {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].bundle[hash].js"
   },
+  resolve: {
+    extensions: [".ts", ".js"]
+  },
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        use: "babel-loader",
+        exclude: /node_modules/
+      },
       {
         test: /\.js$/,
         use: "babel-loader",
@@ -67,16 +75,16 @@ const config = {
     new CopyPlugin({
       patterns: [
         {
-          from: "js/StandardLibraryIntellisense.ts",
-          to: "js/StandardLibraryIntellisense.ts"
-        },
-        {
           from: "static_node_modules/opencascade.js/dist/oc.d.ts",
           to: "opencascade.d.ts"
         },
         {
           from: "node_modules/three/src/Three.d.ts",
           to: "Three.d.ts"
+        },
+        {
+          from: "definitions/CascadeStudioStandardLibrary.d.ts",
+          to: "CascadeStudioStandardLibrary.d.ts"
         },
         {
           from: "fonts",

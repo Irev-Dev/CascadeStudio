@@ -16,20 +16,20 @@ import {
   usedHashes,
   setUsedHashes,
   resetExternalShapes
-} from "./CascadeStudioWorkerState";
-import * as remainingGlobals from "./CascadeStudioWorkerState";
+} from "./CascadeStudioWorkerState.ts";
+import * as remainingGlobals from "./CascadeStudioWorkerState.ts";
 import {
   sceneShapes,
   resetSceneShapes
-} from "./CascadeStudioSceneShapesService";
+} from "./CascadeStudioSceneShapesService.ts";
 import {
   saveShapeSTEP,
   loadFiles,
   loadPrexistingExternalFiles
-} from "./CascadeStudioFileUtils";
-import * as sceneShapesService from "./CascadeStudioSceneShapesService";
+} from "./CascadeStudioFileUtils.js";
+import * as sceneShapesService from "./CascadeStudioSceneShapesService.ts";
 import { ShapeToMesh } from "./CascadeStudioShapeToMesh.js";
-import * as standardLibraryModule from "./CascadeStudioStandardLibrary.js";
+import * as standardLibraryModule from "./CascadeStudioStandardLibrary.ts";
 const { ForEachEdge, ForEachFace } = standardLibraryModule;
 
 // Capture Logs and Errors and forward them to the main thread

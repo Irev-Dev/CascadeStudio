@@ -141,11 +141,13 @@ export function initialize(projectContent = null) {
 
             // Import Typescript Intellisense Definitions for the relevant libraries...
             var extraLibs = [];
-            const typescriptDefinitionFiles = ["/opencascade.d.ts", "/Three.d.ts", "/js/StandardLibraryIntellisense.ts"]
+            const typescriptDefinitionFiles = ["/opencascade.d.ts", "/Three.d.ts", "/CascadeStudioStandardLibrary.d.ts"]
 
             Promise.all(typescriptDefinitionFiles.map(fileLocation => fetch(fileLocation)))
                 .then(async responses => {
                     const files = await Promise.all(responses.map(response => response.text()))
+                    const removeModuleSyntax = /(export declare |export {};|import.+;)/g
+                    files[2] = files[2].replace(removeModuleSyntax, "" );
                     extraLibs = files.map((file, index) => {
                         return ({ content: file, filePath: 'file://' + typescriptDefinitionFiles[index] })
                     })

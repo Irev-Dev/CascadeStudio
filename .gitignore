@@ -8,6 +8,7 @@ lerna-debug.log*
 
 # webpack bundle output file
 dist/*
+definitions/*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

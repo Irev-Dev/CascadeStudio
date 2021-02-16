@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-unused-vars, @typescript-eslint/ban-ts-comment, prettier/prettier, prefer-const */
+
+import OC from "../../static_node_modules/opencascade.js/dist/oc";
 import {
   oc,
   GUIState,
@@ -11,23 +14,33 @@ import {
 // Miscellaneous Helper Functions used in the Standard Library
 
 function getCalleeName(fn) {
-  var ret = fn.toString();
+  let ret = fn.toString();
   ret = ret.substr("function ".length);
   ret = ret.substr(0, ret.indexOf("("));
   return ret;
 }
 
-/** Hashes input arguments and checks the cache for that hash.  
- * It returns a copy of the cached object if it exists, but will 
- * call the `cacheMiss()` callback otherwise. The result will be 
+/** Hashes input arguments and checks the cache for that hash.
+ * It returns a copy of the cached object if it exists, but will
+ * call the `cacheMiss()` callback otherwise. The result will be
  * added to the cache if `GUIState["Cache?"]` is true. */
-export function CacheOp(callee, args, cacheMiss) {
+
+/** Explicitly Cache the result of this operation so that it can return instantly next time it is called with the same arguments.
+ * [Source](https://github.com/zalo/CascadeStudio/blob/master/js/CADWorker/CascadeStudioStandardLibrary.js)
+ * @example```let box = CacheOp(arguments, () => { return new oc.BRepPrimAPI_MakeBox(x, y, z).Shape(); });``` */
+export function CacheOp(
+  callee: (...args: any) => any,
+  args: { [key: string]: any },
+  cacheMiss: () => OC.TopoDS_Shape
+): OC.TopoDS_Shape {
   //toReturn = cacheMiss();
   setCurrentOp(getCalleeName(callee));
   setCurrentLineNumber(getCallingLocation()[0]);
+  // @ts-ignore
   postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": getCalleeName(callee) } }); // Poor Man's Progress Indicator
   setOpNumber(opNumber + 1);
   let toReturn = null;
+  // @ts-ignore
   let curHash = ComputeHash(callee, args); usedHashes[curHash] = curHash;
   let check = CheckCache(curHash);
   if (check && GUIState["Cache?"]) {
@@ -40,6 +53,7 @@ export function CacheOp(callee, args, cacheMiss) {
     toReturn.hash = curHash;
     if (GUIState["Cache?"]) { AddToCache(curHash, toReturn); }
   }
+  // @ts-ignore
   postMessage({ "type": "Progress", "payload": { "opNumber": opNumber, "opType": null } }); // Poor Man's Progress Indicator
   return toReturn;
 }
@@ -53,14 +67,19 @@ function AddToCache(hash, shape) {
   return hash;
 }
 
-/** This function computes a 32-bit integer hash given a set of `arguments`.  
+/** This function computes a 32-bit integer hash given a set of `arguments`.
  * If `raw` is true, the raw set of sanitized arguments will be returned instead. */
-export function ComputeHash(callee, args, raw) {
+export function ComputeHash(
+  callee: ((...args: any) => any) | any,
+  args: { [key: string]: any },
+  raw
+): ReturnType<typeof stringToHash> {
   let argsString = JSON.stringify(args);
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*?)\,)/g, '');
   argsString = argsString.replace(/(\"ptr\"\:(-?[0-9]*))/g, '');
   if (argsString.includes("ptr")) { console.error("YOU DONE MESSED UP YOUR REGEX."); }
-  let hashString = getCalleeName(callee) + argsString;// + GUIState["MeshRes"];
+  let hashString = getCalleeName(callee) + argsString; // + GUIState["MeshRes"];
+  // @ts-ignore
   if (raw) { return hashString; }
   return stringToHash(hashString);
 }
@@ -117,17 +136,22 @@ export function getCallingLocation() {
   }else if (navigator.userAgent.includes("Moz")) {
     matchingString = "eval:";
   } else {
+    // @ts-ignore
     lineAndColumn[0] = "-1";
+    // @ts-ignore
     lineAndColumn[1] = "-1";
     return lineAndColumn;
   }
 
   errorStack.split("\n").forEach((line) => {
     if (line.includes(matchingString)) {
+      // @ts-ignore
       lineAndColumn = line.split(matchingString)[1].split(':');
     }
   });
+  // @ts-ignore
   lineAndColumn[0] = parseFloat(lineAndColumn[0]);
+  // @ts-ignore
   lineAndColumn[1] = parseFloat(lineAndColumn[1]);
 
   return lineAndColumn;
@@ -145,15 +169,15 @@ export function convertToPnt(pnt) {
 }
 
 /** This function converts a string to a 32bit integer. */
-export function stringToHash(string) { 
-    let hash = 0; 
-    if (string.length == 0) return hash; 
-    for (let i = 0; i < string.length; i++) { 
-        let char = string.charCodeAt(i); 
-        hash = ((hash << 5) - hash) + char; 
-        hash = hash & hash; 
-    } 
-    return hash; 
+export function stringToHash(string: string) { 
+  let hash = 0;
+  if (string.length == 0) return hash; 
+  for (let i = 0; i < string.length; i++) { 
+    let char = string.charCodeAt(i); 
+    hash = ((hash << 5) - hash) + char; 
+    hash = hash & hash; 
+  } 
+  return hash; 
 }
 
 function CantorPairing(x, y) {
