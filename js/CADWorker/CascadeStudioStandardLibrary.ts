@@ -14,7 +14,7 @@
 //  - From there, you can graft those into CascadeStudio/static_node_modules/opencascade.js/dist (following its existing conventions)
 
 /** Import Misc. Utilities that aren't part of the Exposed Library */
-import OC from "../../static_node_modules/opencascade.js/dist/oc";
+import OC from "opencascade.js/dist/opencascade";
 import {
   CacheOp,
   ComputeHash,

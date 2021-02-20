@@ -5,8 +5,9 @@
     "module": "es6",
     "target": "es5",
     "allowJs": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "skipLibCheck": true
   },
   "declaration": true,
-  "include": ["./static_node_modules/opencascade.js/dist/oc.d.ts"]
+  "exclude": ["node_modules"]
 }

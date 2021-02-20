@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-unused-vars, @typescript-eslint/ban-ts-comment, prettier/prettier, prefer-const */
 
-import OC from "../../static_node_modules/opencascade.js/dist/oc";
+import OC from "opencascade.js/dist/opencascade";
 import {
   oc,
   GUIState,
