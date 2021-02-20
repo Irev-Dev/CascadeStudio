@@ -1,4 +1,4 @@
-import OC from "../../static_node_modules/opencascade.js/dist/oc";
+import OC from "opencascade.js/dist/opencascade";
 
 export const messageHandlers = {};
 

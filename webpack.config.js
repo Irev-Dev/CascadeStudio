@@ -75,7 +75,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         {
-          from: "static_node_modules/opencascade.js/dist/oc.d.ts",
+          from: "node_modules/opencascade.js/dist/opencascade.d.ts",
           to: "opencascade.d.ts"
         },
         {
