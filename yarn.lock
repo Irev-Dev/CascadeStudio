@@ -5770,7 +5770,7 @@ onetime@^5.1.0:
   dependencies:
     mimic-fn "^2.1.0"
 
-opencascade.js@^0.1.15:
+opencascade.js@^0.1.19:
   version "0.1.19"
   resolved "https://registry.yarnpkg.com/opencascade.js/-/opencascade.js-0.1.19.tgz#32d545ca4add213d168eb6e6973dceba1bcab35b"
   integrity sha512-7q8LNihtU7BzsIXXoqTHq2/7ASfDdK5OycuI1oscc/9Opmew8OXjcv/oTSF+w5U+0dwUt8LewdG/xYSIkkf8Ig==
