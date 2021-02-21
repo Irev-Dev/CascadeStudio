@@ -49,13 +49,6 @@ CascadeStudio/
 !static_node_modules/rawflate/
 !static_node_modules/rawflate/*
 
-# opencascade.js Bin
-!static_node_modules/opencascade.js/index.js
-!static_node_modules/opencascade.js/
-!static_node_modules/opencascade.js/*/
-!static_node_modules/opencascade.js/dist/
-!static_node_modules/opencascade.js/dist/*
-static_node_modules/opencascade.js/dist/opencascade.js
 # Add the above line for now, can take it out if necessary
 
 jspm_packages/

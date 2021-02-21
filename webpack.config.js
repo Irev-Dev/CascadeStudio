@@ -71,7 +71,7 @@ const config = {
           to: "js/StandardLibraryIntellisense.ts"
         },
         {
-          from: "static_node_modules/opencascade.js/dist/oc.d.ts",
+          from: "node_modules/opencascade.js/dist/opencascade.d.ts",
           to: "opencascade.d.ts"
         },
         {
