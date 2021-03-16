@@ -4,7 +4,12 @@ import GoldenLayout from "golden-layout";
 import "golden-layout/src/css/goldenlayout-base.css";
 import "golden-layout/src/css/goldenlayout-dark-theme.css";
 import ControlKit from "controlkit";
-import * as monaco from "monaco-editor";
+import {languages as monaco_languages, editor as monaco_Editor} from "monaco-editor";
+const monaco = {
+  editor: monaco_Editor,
+  languages: monaco_languages,
+}
+
 
 import '../../static_node_modules/rawflate/rawdeflate'
 import '../../static_node_modules/rawflate/rawinflate'
@@ -33,11 +38,11 @@ var myLayout,
 
 let hasCalledCadhubOnInit = false
 
-let starterCode = 
+let starterCode =
 `// Welcome to Cascade Studio!   Here are some useful functions:
 //  Translate(), Rotate(), Scale(), Union(), Difference(), Intersection()
 //  Box(), Sphere(), Cylinder(), Cone(), Text3D(), Polygon()
-//  Offset(), Extrude(), RotatedExtrude(), Revolve(), Pipe(), Loft(), 
+//  Offset(), Extrude(), RotatedExtrude(), Revolve(), Pipe(), Loft(),
 //  FilletEdges(), ChamferEdges(),
 //  Slider(), Button(), Checkbox()
 
@@ -193,23 +198,23 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
             let mergedViewState = Object.assign(monacoEditor.saveViewState(), {
                 "contributionsState": {
                     "editor.contrib.folding": {
-                        "collapsedRegions": collapsed, 
+                        "collapsedRegions": collapsed,
                         "lineCount": codeLines.length,
-                        "provider": "indent" 
+                        "provider": "indent"
                     },
-                    "editor.contrib.wordHighlighter": false 
+                    "editor.contrib.wordHighlighter": false
                 }
             });
             monacoEditor.restoreViewState(mergedViewState);
             // End Collapsing All Functions -----------------------------------------------------
-            
-            /** This function triggers the evaluation of the editor code 
+
+            /** This function triggers the evaluation of the editor code
              *  inside the CAD Worker thread.*/
             monacoEditor.evaluateCode = (saveToURL = false) => {
                 // Don't evaluate if the `workerWorking` flag is true
                 if (workerWorking) { return; }
 
-                // Set the "workerWorking" flag, so we don't submit 
+                // Set the "workerWorking" flag, so we don't submit
                 // multiple jobs to the worker thread simultaneously
                 setWorkerWorking(true);
 
@@ -237,7 +242,7 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
                 threejsViewport.clearTransformHandles();
 
                 // Set up receiving files from the worker thread
-                // This lets users download arbitrary information 
+                // This lets users download arbitrary information
                 // from the CAD engine via the `saveFile()` function
                 messageHandlers["saveFile"] = (payload) => {
                     let link = document.createElement("a");
@@ -256,7 +261,7 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
                     }
                 });
 
-                // After evaluating, assemble all of the objects in the "workspace" 
+                // After evaluating, assemble all of the objects in the "workspace"
                 // and begin saving them out
                 cascadeStudioWorker.postMessage({
                     "type": "combineAndRenderShapes",
@@ -266,10 +271,10 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
                 // Saves the current code to the project
                 container.setState({ code: newCode });
 
-                // Determine whether to save the code + gui (no external files) 
+                // Determine whether to save the code + gui (no external files)
                 // to the URL depending on the current mode of the editor.
                 if (false) { // disable will small diff (to help with conflicts later)
-                    console.log("Saved to URL!"); //Generation Complete! 
+                    console.log("Saved to URL!"); //Generation Complete!
                     window.history.replaceState({}, 'Cascade Studio',
                         "?code=" + encode(newCode) + "&gui=" + encode(JSON.stringify(GUIState)));
                 }
@@ -343,7 +348,7 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
                     this._panels = [];
                 }.bind(gui);
             }
-                
+
             setThreejsViewport(new CascadeEnvironment(container));
         });
     });
@@ -390,9 +395,9 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
             };
             // Call this console.log when triggered from the WASM
             messageHandlers["log"  ] = (payload) => { console.log(payload); };
-            messageHandlers["error"] = (payload) => { 
+            messageHandlers["error"] = (payload) => {
                 setWorkerWorking(false);
-                console.error(payload); 
+                console.error(payload);
             };
 
             // Print Errors in Red
@@ -451,7 +456,7 @@ export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
     myLayout.init();
     myLayout.updateSize(window.innerWidth, getIdeHeight());
 
-    // If the Main Page loads before the CAD Worker, register a 
+    // If the Main Page loads before the CAD Worker, register a
     // callback to start the model evaluation when the CAD is ready.
     messageHandlers["startupCallback"] = () => {
         startup = function () {
@@ -519,7 +524,7 @@ export async function writeFile(fileHandle, contents) {
     await writable.close();
 }
 
-/** This function serializes the Project's current state 
+/** This function serializes the Project's current state
  * into a `.json` file and saves it to the selected location. */
 export async function saveProject() {
     let currentCode = monacoEditor.getValue();
@@ -560,10 +565,10 @@ export const loadProject = async () => {
     file.content = monacoEditor.getValue();
 }
 
-/** This function triggers the CAD WebWorker to 
+/** This function triggers the CAD WebWorker to
  * load one or more  .stl, .step, or .iges files. */
 export function loadFiles(fileElementID = "files") {
-    // Ask the worker thread to load these files... 
+    // Ask the worker thread to load these files...
     // I can already feel this not working...
     let files = document.getElementById(fileElementID).files;
     cascadeStudioWorker.postMessage({
@@ -579,7 +584,7 @@ export function loadFiles(fileElementID = "files") {
     };
 }
 
-/** This function clears all Externally Loaded files 
+/** This function clears all Externally Loaded files
  * from the `externalFiles` dict. */
 export function clearExternalFiles() {
     cascadeStudioWorker.postMessage({
@@ -596,12 +601,12 @@ function encode(string) { return encodeURIComponent(window.btoa(RawDeflate.defla
 /** This function returns true if item is indexable like an array. */
 function isArrayLike(item) {
     return (
-        Array.isArray(item) || 
+        Array.isArray(item) ||
         (!!item &&
           typeof item === "object" &&
-          item.hasOwnProperty("length") && 
-          typeof item.length === "number" && 
-          item.length > 0 && 
+          item.hasOwnProperty("length") &&
+          typeof item.length === "number" &&
+          item.length > 0 &&
           (item.length - 1) in item
         )
     );
