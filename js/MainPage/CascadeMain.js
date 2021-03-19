@@ -4,11 +4,6 @@ import GoldenLayout from "golden-layout";
 import "golden-layout/src/css/goldenlayout-base.css";
 import "golden-layout/src/css/goldenlayout-dark-theme.css";
 import ControlKit from "controlkit";
-import {languages as monaco_languages, editor as monaco_Editor} from "monaco-editor";
-const monaco = {
-  editor: monaco_Editor,
-  languages: monaco_languages,
-}
 
 
 import '../../static_node_modules/rawflate/rawdeflate'
@@ -59,7 +54,12 @@ Translate([-25, 0, 40], Text3D("Hi!"));
 
 // Don't forget to push imported or oc-defined shapes into sceneShapes to add them to the workspace!`;
 
-export function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
+export async function initialize(codeUpdateCallback = () => {}, initCode, onInit) {
+    const {languages: monaco_languages, editor: monaco_Editor} = await import('monaco-editor/esm/vs/editor/editor.api.js');
+    const monaco = {
+      editor: monaco_Editor,
+      languages: monaco_languages,
+    }
     const projectContent = false
 
     // Load the initial Project from - "projectContent", the URL, or the Gallery
